@@ -21,7 +21,7 @@ export type LocalProducts = {
 
 type HttpRequest = { localProducts: LocalProducts }
 
-export class LoadCartInfoController extends Controller {
+export class LoadCartController extends Controller {
   constructor (private readonly loadCartInfo: any) {
     super()
   }
