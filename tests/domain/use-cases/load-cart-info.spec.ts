@@ -1,78 +1,13 @@
 import { mock, MockProxy } from 'jest-mock-extended'
-
-class InvalidCartError extends Error {
-  constructor () {
-    super('Carrinho invalido!')
-    this.name = 'InvalidCartError'
-  }
-}
-
-class NoLongerInStock extends Error {
-  constructor (productName: string, inStock: number) {
-    const message = inStock === 0
-      ? `O produto ${productName} nao esta mais em estoque!`
-      : `O produto ${productName} nao esta mais em estoque! restam apenas ${inStock}`
-    super(message)
-    this.name = 'NoLongerInStock'
-  }
-}
-
-interface LoadProductsByIds {
-  load: (ids: string[]) => Promise<Product[]>
-}
-
-type ProductCartItem = {
-  id: string
-  name: string
-  imageUrl: string
-  price: number
-  quantity: number
-}
-
-type Product = {
-  id: string
-  name: string
-  imageUrl: string
-  price: number
-  stock: number
-}
-
-type Quantity = number
-export type LocalProducts = {
-  [id: string]: Quantity
-}
-
-type Setup = (productsRepo: LoadProductsByIds) => LoadCartInfo
-type Input = { localProducts: LocalProducts }
-type LoadCartInfo = ({ localProducts }: Input) => Promise<{products: ProductCartItem[], subTotal: number}>
-
-const setupLoadCartInfo: Setup = (productsRepo) => async ({ localProducts }) => {
-  const ids = Object.keys(localProducts)
-  const dbProducts = await productsRepo.load(ids)
-  if (dbProducts.length < ids.length) throw new InvalidCartError()
-
-  const products = dbProducts.map((product, key) => ({
-    ...product,
-    quantity: localProducts[product.id]
-  }))
-
-  const stockManager = (): {name: string, stock: number} | undefined => {
-    return dbProducts
-      .filter((product) => product.stock - localProducts[product.id] < 0)
-      .map(item => ({ name: item.name, stock: item.stock }))[0]
-  }
-  const outOfStockProducts = stockManager()
-  if (outOfStockProducts !== undefined) throw new NoLongerInStock(outOfStockProducts.name, outOfStockProducts.stock)
-
-  const subTotal = products.reduce((acc, product) => acc + product.price * product.quantity, 0)
-
-  return { products, subTotal }
-}
+import { LoadProductsByIds } from '@/domain/contracts/repos/load-product-by-ids'
+import { InvalidCartError, NoLongerInStock } from '@/domain/errors'
+import { LocalCartProducts } from '@/domain/models'
+import { LoadCartInfo, setupLoadCartInfo } from '@/domain/use-cases/load-cart-info'
 
 describe('LoadCartInfo', () => {
   let sut: LoadCartInfo
   let productsRepo: MockProxy<LoadProductsByIds>
-  let localProducts: LocalProducts
+  let localProducts: LocalCartProducts
 
   beforeEach(() => {
     localProducts = {

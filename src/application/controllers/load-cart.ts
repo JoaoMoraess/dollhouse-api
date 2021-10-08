@@ -1,25 +1,9 @@
+import { LocalCartProducts, CartInfo } from '@/domain/models'
 import { Controller } from '.'
 import { HttpResponse, ok } from '../helpers'
 import { ValidationBuilder, Validator } from '../validation'
 
-type ProductCartItem = {
-  id: string
-  name: string
-  imageUrl: string
-  price: number
-  quantity: number
-}
-type CartInfo = {
-  products: ProductCartItem[]
-  subTotal: number
-}
-
-type Quantity = number
-export type LocalProducts = {
-  [id: string]: Quantity
-}
-
-type HttpRequest = { localProducts: LocalProducts }
+type HttpRequest = { localProducts: LocalCartProducts }
 
 export class LoadCartController extends Controller {
   constructor (private readonly loadCartInfo: any) {
