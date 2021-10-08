@@ -1,33 +1,5 @@
-import { HttpResponse, ok } from '@/application/helpers'
-import { Controller } from '@/application/controllers'
-import { ValidationBuilder, Validator, Required } from '@/application/validation'
-
-type Quantity = number
-type LocalProducts = {
-  [id: string]: Quantity
-}
-
-type HttpRequest = { localProducts: LocalProducts }
-
-class LoadCartInfoController extends Controller {
-  constructor (private readonly loadCartInfo: any) {
-    super()
-  }
-
-  override async perform ({ localProducts }: HttpRequest): Promise<HttpResponse> {
-    const { products, subTotal } = await this.loadCartInfo({ localProducts })
-    return ok({ products, subTotal })
-  }
-
-  override buildValidators ({ localProducts }: HttpRequest): Validator[] {
-    return [
-      ...ValidationBuilder
-        .of({ fieldValue: localProducts, fieldName: 'localProducts' })
-        .required()
-        .build()
-    ]
-  }
-}
+import { Controller, LoadCartInfoController, LocalProducts } from '@/application/controllers'
+import { Required } from '@/application/validation'
 
 describe('LoadCartInfoController', () => {
   let sut: LoadCartInfoController
