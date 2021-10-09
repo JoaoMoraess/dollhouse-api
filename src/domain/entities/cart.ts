@@ -34,8 +34,8 @@ export class CartManager {
     this.subTotal = this.products.reduce((acc, product) => acc + product.price * product.quantity, 0)
   }
 
-  validate (): void {
+  validate (): Error | undefined {
     const ids = Object.keys(this.localProducts)
-    if (this.dbProducts.length < ids.length) throw new InvalidCartError()
+    if (this.dbProducts.length < ids.length) return new InvalidCartError()
   }
 }

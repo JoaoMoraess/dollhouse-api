@@ -14,8 +14,11 @@ export const setupLoadCartInfo: Setup = (productsRepo) => async ({ localProducts
   const cartManager = new CartManager(localProducts, dbProducts)
   const productStockManager = new ProductStockManager(localProducts, dbProducts)
 
-  cartManager.validate()
-  productStockManager.validate()
+  const cartValid = cartManager.validate()
+  if (cartValid !== undefined) throw cartValid
+
+  const haveInStock = productStockManager.validate()
+  if (haveInStock !== undefined) throw haveInStock
 
   return { products: cartManager.products, subTotal: cartManager.subTotal }
 }

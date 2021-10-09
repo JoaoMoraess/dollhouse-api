@@ -15,15 +15,15 @@ export class ProductStockManager {
   outOfStockProducts?: OutOfStockProducts
 
   constructor (
-    private readonly localProducts: LocalCartProducts,
-    private readonly dbProducts: Product[]
+    localProducts: LocalCartProducts,
+    dbProducts: Product[]
   ) {
     this.outOfStockProducts = dbProducts
       .filter((product) => product.stock - localProducts[product.id] < 0)
       .map(item => ({ name: item.name, inStock: item.stock }))[0]
   }
 
-  validate (): void {
-    if (this.outOfStockProducts !== undefined) throw new NoLongerInStock(this.outOfStockProducts.name, this.outOfStockProducts.inStock)
+  validate (): Error | undefined {
+    if (this.outOfStockProducts !== undefined) return new NoLongerInStock(this.outOfStockProducts.name, this.outOfStockProducts.inStock)
   }
 }

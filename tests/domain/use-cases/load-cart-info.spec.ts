@@ -1,8 +1,8 @@
 import { mock, MockProxy } from 'jest-mock-extended'
-import { LoadProductsByIds } from '@/domain/contracts/repos/load-product-by-ids'
+import { LoadProductsByIds } from '@/domain/contracts/repos'
 import { InvalidCartError, NoLongerInStock } from '@/domain/entities/errors'
 import { LocalCartProducts } from '@/domain/entities'
-import { LoadCartInfo, setupLoadCartInfo } from '@/domain/use-cases/load-cart-info'
+import { LoadCartInfo, setupLoadCartInfo } from '@/domain/use-cases'
 
 describe('LoadCartInfo', () => {
   let sut: LoadCartInfo
