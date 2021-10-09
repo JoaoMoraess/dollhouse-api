@@ -1,7 +1,7 @@
 import { mock, MockProxy } from 'jest-mock-extended'
 import { LoadProductsByIds } from '@/domain/contracts/repos/load-product-by-ids'
-import { InvalidCartError, NoLongerInStock } from '@/domain/errors'
-import { LocalCartProducts } from '@/domain/models'
+import { InvalidCartError, NoLongerInStock } from '@/domain/entities/errors'
+import { LocalCartProducts } from '@/domain/entities'
 import { LoadCartInfo, setupLoadCartInfo } from '@/domain/use-cases/load-cart-info'
 
 describe('LoadCartInfo', () => {

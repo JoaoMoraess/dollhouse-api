@@ -1,16 +1,17 @@
-import { LocalCartProducts, CartInfo } from '@/domain/models'
+import { LocalCartProducts, ProductCartItem } from '@/domain/entities'
 import { Controller } from '.'
-import { HttpResponse, ok } from '../helpers'
-import { ValidationBuilder, Validator } from '../validation'
+import { HttpResponse, ok } from '@/application/helpers'
+import { ValidationBuilder, Validator } from '@/application/validation'
 
 type HttpRequest = { localProducts: LocalCartProducts }
+type Model = { products: ProductCartItem, subTotal: number }
 
 export class LoadCartController extends Controller {
   constructor (private readonly loadCartInfo: any) {
     super()
   }
 
-  override async perform ({ localProducts }: HttpRequest): Promise<HttpResponse<CartInfo>> {
+  override async perform ({ localProducts }: HttpRequest): Promise<HttpResponse<Model>> {
     const { products, subTotal } = await this.loadCartInfo({ localProducts })
     return ok({ products, subTotal })
   }

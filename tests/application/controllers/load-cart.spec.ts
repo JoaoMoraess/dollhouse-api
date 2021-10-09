@@ -1,6 +1,6 @@
 import { Controller, LoadCartController } from '@/application/controllers'
 import { Required } from '@/application/validation'
-import { LocalCartProducts } from '@/domain/models'
+import { LocalCartProducts } from '@/domain/entities'
 
 describe('LoadCartController', () => {
   let sut: LoadCartController
@@ -27,6 +27,7 @@ describe('LoadCartController', () => {
   it('should extend Controller', async () => {
     expect(sut).toBeInstanceOf(Controller)
   })
+
   it('should build validatos correctly on save', async () => {
     const validators = sut.buildValidators({ localProducts })
 
