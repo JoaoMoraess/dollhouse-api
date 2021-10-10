@@ -1,13 +1,7 @@
 import { Product } from '.'
 import { InvalidCartError } from './errors'
 
-export type ProductCartItem = {
-  id: string
-  name: string
-  imageUrl: string
-  price: number
-  quantity: number
-}
+export type ProductCartItem = { quantity: number } & Product
 
 export type CartInfo = {
   products: ProductCartItem[]
@@ -31,7 +25,7 @@ export class CartManager {
       ...product,
       quantity: localProducts[product.id]
     }))
-    this.subTotal = this.products.reduce((acc, product) => acc + product.price * product.quantity, 0)
+    this.subTotal = this.products.reduce((acc, product) => acc + Number(product.price) * product.quantity, 0)
   }
 
   validate (): Error | undefined {

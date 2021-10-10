@@ -15,7 +15,7 @@ describe('LoadCartInfo', () => {
       other_id: 2
     }
     productsRepo = mock()
-    productsRepo.load.mockResolvedValue([{
+    productsRepo.loadByIds.mockResolvedValue([{
       id: 'any_id',
       imageUrl: 'any_image_url',
       name: 'any_name',
@@ -37,8 +37,8 @@ describe('LoadCartInfo', () => {
   it('should call loadProductsByIds with correct input', async () => {
     await sut({ localProducts })
 
-    expect(productsRepo.load).toHaveBeenCalledWith(['any_id', 'other_id'])
-    expect(productsRepo.load).toHaveBeenCalledTimes(1)
+    expect(productsRepo.loadByIds).toHaveBeenCalledWith(['any_id', 'other_id'])
+    expect(productsRepo.loadByIds).toHaveBeenCalledTimes(1)
   })
 
   it('should throw if cart is invalid', async () => {
@@ -70,7 +70,7 @@ describe('LoadCartInfo', () => {
   })
 
   it('should rethrow productsRepo throw', async () => {
-    productsRepo.load.mockRejectedValueOnce(new Error('load_error'))
+    productsRepo.loadByIds.mockRejectedValueOnce(new Error('load_error'))
     const promise = sut({ localProducts })
 
     await expect(promise).rejects.toThrow(new Error('load_error'))

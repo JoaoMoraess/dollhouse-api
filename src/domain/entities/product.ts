@@ -4,9 +4,9 @@ import { NoLongerInStock } from './errors'
 export type Product = {
   id: string
   name: string
-  imageUrl: string
-  price: number
   stock: number
+  price: number
+  imageUrl: string
 }
 
 type OutOfStockProducts = { name: string, inStock: number }

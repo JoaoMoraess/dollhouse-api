@@ -9,7 +9,7 @@ export type LoadCartInfo = ({ localProducts }: Input) => Promise<Output>
 
 export const setupLoadCartInfo: Setup = (productsRepo) => async ({ localProducts }) => {
   const ids = Object.keys(localProducts)
-  const dbProducts = await productsRepo.load(ids)
+  const dbProducts = await productsRepo.loadByIds(ids)
 
   const cartManager = new CartManager(localProducts, dbProducts)
   const productStockManager = new ProductStockManager(localProducts, dbProducts)
