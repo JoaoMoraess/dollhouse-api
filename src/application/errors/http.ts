@@ -1,7 +1,8 @@
 export class ServerError extends Error {
   constructor (error?: Error) {
-    super('Server failed. Try again soon')
-    this.name = 'ServerError'
+    const message = error?.message ?? 'Server failed. Try again soon'
+    super(message)
+    this.name = error?.message ?? 'ServerError'
     this.stack = error?.stack
   }
 }

@@ -3,7 +3,11 @@ import { LoadProductsByIds } from '@/domain/contracts/repos'
 import { Product } from '@/domain/entities'
 
 export class PgProductRepository implements LoadProductsByIds {
-  constructor (private readonly prisma: PrismaClient) {}
+  prisma: PrismaClient
+
+  constructor () {
+    this.prisma = new PrismaClient()
+  }
 
   async connect <T = any>(operation: Function): Promise<T> {
     return await this.prisma.$connect()
@@ -13,7 +17,7 @@ export class PgProductRepository implements LoadProductsByIds {
   }
 
   async loadByIds (ids: string[]): Promise<Product[]> {
-    const products = this.connect<Product[]>(() => {
+    const products = await this.connect<Product[]>(() => {
       return this.prisma.product.findMany({
         where: {
           id: {
@@ -22,7 +26,6 @@ export class PgProductRepository implements LoadProductsByIds {
         }
       })
     })
-
     return products
   }
 }

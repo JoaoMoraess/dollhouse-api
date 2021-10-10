@@ -21,7 +21,8 @@ describe('PgProductRepository', () => {
     })
 
     beforeEach(() => {
-      sut = new PgProductRepository(prismaMock)
+      sut = new PgProductRepository()
+      sut.prisma = prismaMock
     })
 
     it('should return a product on success', async () => {
