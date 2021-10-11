@@ -2,7 +2,7 @@ import { InvalidFieldError } from '@/application/errors/validation'
 import { MaxLength } from '@/application/validation'
 
 describe('MaxLenght', () => {
-  it('should return RequiredFieldError if value is empty', () => {
+  it('should return RequiredFieldError if value is invalid', () => {
     const sut = new MaxLength(10, 9, 'any_field')
 
     const error = sut.validate()
