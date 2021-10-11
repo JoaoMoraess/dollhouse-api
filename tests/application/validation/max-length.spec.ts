@@ -32,4 +32,12 @@ describe('MaxLenght', () => {
 
     expect(error).toEqual(new InvalidFieldError('any_field'))
   })
+
+  it('should return undefined value is okay', () => {
+    const sut = new MaxLength(10, 10, 'any_field')
+
+    const error = sut.validate()
+
+    expect(error).toBeUndefined()
+  })
 })
