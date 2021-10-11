@@ -1,9 +1,9 @@
-import { Controller, LoadCartController } from '@/application/controllers'
+import { Controller, LoadCartInfoController } from '@/application/controllers'
 import { Required } from '@/application/validation'
 import { LocalCartProducts } from '@/domain/entities'
 
-describe('LoadCartController', () => {
-  let sut: LoadCartController
+describe('LoadCartInfoController', () => {
+  let sut: LoadCartInfoController
   let loadCartInfo: jest.Mock
   let localProducts: LocalCartProducts
 
@@ -22,7 +22,7 @@ describe('LoadCartController', () => {
     })
   })
   beforeEach(() => {
-    sut = new LoadCartController(loadCartInfo)
+    sut = new LoadCartInfoController(loadCartInfo)
   })
 
   it('should extend Controller', async () => {

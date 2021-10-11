@@ -7,7 +7,7 @@ import { LoadCartInfo } from '@/domain/use-cases'
 type HttpRequest = { localProducts: LocalCartProducts }
 type Model = { products: ProductCartItem[], subTotal: number }
 
-export class LoadCartController extends Controller {
+export class LoadCartInfoController extends Controller {
   constructor (private readonly loadCartInfo: LoadCartInfo) {
     super()
   }
