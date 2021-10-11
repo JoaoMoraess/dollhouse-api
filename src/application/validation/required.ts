@@ -28,3 +28,18 @@ export class RequiredString extends Required {
     }
   }
 }
+
+export class RequiredNumber extends Required {
+  constructor (
+    override readonly fieldValue: number,
+    override readonly fieldName?: string
+  ) {
+    super(fieldValue, fieldName)
+  }
+
+  override validate (): Error | undefined {
+    if (super.validate() !== undefined || typeof this.fieldValue !== 'number') {
+      return new RequiredFieldError(this.fieldName)
+    }
+  }
+}

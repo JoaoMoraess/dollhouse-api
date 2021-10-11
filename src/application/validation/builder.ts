@@ -1,4 +1,4 @@
-import { Required, RequiredString, Validator } from '.'
+import { Required, RequiredNumber, RequiredString, Validator } from '.'
 
 export class ValidationBuilder {
   private constructor (
@@ -14,6 +14,8 @@ export class ValidationBuilder {
   required (): ValidationBuilder {
     if (typeof this.fieldValue === 'string') {
       this.validators.push(new RequiredString(this.fieldValue, this.fieldName))
+    } else if (typeof this.fieldValue === 'number') {
+      this.validators.push(new RequiredNumber(this.fieldValue, this.fieldName))
     } else {
       this.validators.push(new Required(this.fieldValue, this.fieldName))
     }
