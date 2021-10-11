@@ -14,6 +14,7 @@ describe('LoadCartController', () => {
     loadCartInfo = jest.fn().mockResolvedValue({
       products: [{
         id: 'any_id',
+        name: 'any_name',
         imageUrl: 'any_image_url',
         price: 1299,
         quantity: 1
@@ -50,6 +51,7 @@ describe('LoadCartController', () => {
       data: {
         products: [{
           id: 'any_id',
+          name: 'any_name',
           imageUrl: 'any_image_url',
           price: 1299,
           quantity: 1

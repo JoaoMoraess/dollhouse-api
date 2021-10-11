@@ -1,0 +1,48 @@
+version: '3.7'
+services:
+  postgres:
+    container_name: postgres
+    ports:
+      - '5432:5432'
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=docker 
+      - POSTGRES_PASSWORD=docker 
+      - POSTGRES_DB=docker 
+    volumes:
+      - postgres:/var/lib/postgresql/data
+  prisma:
+    links:
+      - postgres
+    depends_on:
+      - postgres
+    container_name: prisma
+    environment:
+      DATABASE_URL: postgresql://docker:docker@postgres:5432/docker
+      
+    ports:
+      - '4466:4466'
+    build:
+      context: prisma
+      dockerfile: Dockerfile
+    volumes:
+      - /app/prisma
+  api:
+    links:
+      - postgres
+    depends_on:
+      - postgres
+    container_name: dollhouse_api
+    ports:
+      - '8080:8080'
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/prisma
+    command: yarn start
+volumes: #define our postgres volume used above
+  postgres: ~
