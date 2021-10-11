@@ -1,28 +1,5 @@
-import { Validator } from '@/application/validation'
-
-class InvalidFieldError extends Error {
-  constructor (field?: string) {
-    const message = field === undefined
-      ? 'Field invalid!'
-      : `The field ${field} is invalid!`
-    super(message)
-    this.name = 'InvalidFieldError'
-  }
-}
-
-export class MaxLength implements Validator {
-  constructor (
-    readonly fieldValue: number,
-    readonly maxFieldValue: number,
-    readonly fieldName?: string
-  ) {}
-
-  validate (): Error | undefined {
-    if (this.fieldValue > this.maxFieldValue) {
-      return new InvalidFieldError(this.fieldName)
-    }
-  }
-}
+import { InvalidFieldError } from '@/application/errors/validation'
+import { MaxLength } from '@/application/validation'
 
 describe('MaxLenght', () => {
   it('should return RequiredFieldError if value is empty', () => {
