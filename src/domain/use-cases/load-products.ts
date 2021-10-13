@@ -1,6 +1,7 @@
 import { Product } from '@/domain/entities'
+import { LoadProductsByOffset } from '@/domain/contracts/repos'
 
-type Setup = (productsRepo: any) => LoadProducts
+type Setup = (productsRepo: LoadProductsByOffset) => LoadProducts
 type Input = { limit: number, offset: number }
 type Output = { products: Product[] }
 
