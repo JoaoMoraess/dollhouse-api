@@ -4,12 +4,12 @@ import { Required } from '@/application/validation'
 describe('LoadProductsController', () => {
   let sut: LoadProductsController
   let loadProducts: any
-  let limit: number
-  let offset: number
+  let limit: string
+  let offset: string
 
   beforeAll(() => {
-    limit = 10
-    offset = 0
+    limit = '10'
+    offset = '0'
     loadProducts = jest.fn().mockResolvedValue({
       products: [{
         id: 'any_id',
@@ -47,7 +47,10 @@ describe('LoadProductsController', () => {
   it('should call loadProducts with correct input', async () => {
     await sut.handle({ limit, offset })
 
-    expect(loadProducts).toHaveBeenCalledWith({ limit, offset })
+    const numberLimit = Number(limit)
+    const numberOffset = Number(offset)
+
+    expect(loadProducts).toHaveBeenCalledWith({ limit: numberLimit, offset: numberOffset })
     expect(loadProducts).toHaveBeenCalledTimes(1)
   })
   it('should return 200 with valida data', async () => {

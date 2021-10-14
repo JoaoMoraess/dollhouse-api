@@ -3,8 +3,8 @@ import { HttpResponse, ok } from '@/application/helpers'
 import { Validator, ValidationBuilder } from '@/application/validation'
 
 type HttpRequest = {
-  limit: number
-  offset: number
+  limit: string
+  offset: string
 }
 
 export class LoadProductsController extends Controller {
@@ -12,7 +12,9 @@ export class LoadProductsController extends Controller {
     super()
   }
 
-  override async perform ({ limit, offset }: HttpRequest): Promise<HttpResponse> {
+  override async perform (httpRequest: HttpRequest): Promise<HttpResponse> {
+    const limit = Number(httpRequest.limit)
+    const offset = Number(httpRequest.offset)
     const { products } = await this.loadProducts({ limit, offset })
     return ok({ products })
   }
