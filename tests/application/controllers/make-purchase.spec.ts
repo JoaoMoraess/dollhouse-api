@@ -14,11 +14,12 @@ type HttpRequest = {
 
 class MakePurchaseController extends Controller {
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-  constructor () {
+  constructor (private readonly makePurchase: any) {
     super()
   }
 
   override async perform (httpRequest: HttpRequest): Promise<HttpResponse<null>> {
+    await this.makePurchase(httpRequest)
     return noContent()
   }
 
@@ -53,7 +54,9 @@ class MakePurchaseController extends Controller {
 describe('MakePurchaseController', () => {
   let httpRequest: HttpRequest
   let sut: MakePurchaseController
-  beforeEach(() => {
+  let makePurchase: jest.Mock
+
+  beforeAll(() => {
     httpRequest = {
       productsIds: ['any_id', 'other_id'],
       cep: '94750-000',
@@ -63,9 +66,10 @@ describe('MakePurchaseController', () => {
       cardNumber: 2123123422,
       cardSecurityCode: 876
     }
+    makePurchase = jest.fn().mockResolvedValue(() => {})
   })
   beforeEach(() => {
-    sut = new MakePurchaseController()
+    sut = new MakePurchaseController(makePurchase)
   })
 
   it('should extend Controller', async () => {
@@ -84,6 +88,12 @@ describe('MakePurchaseController', () => {
       new RequiredNumber(httpRequest.cardNumber, 'cardNumber'),
       new RequiredNumber(httpRequest.cardSecurityCode, 'cardSecurityCode')
     ])
+  })
+  it('should call makePurchase with correct input', async () => {
+    await sut.handle(httpRequest)
+
+    expect(makePurchase).toHaveBeenCalledWith(httpRequest)
+    expect(makePurchase).toHaveBeenCalledTimes(1)
   })
   it('should return noContent on success', async () => {
     const httpResponse = await sut.handle(httpRequest)
