@@ -1,19 +1,15 @@
 import { Controller } from '@/application/controllers'
 import { HttpResponse } from '@/application/helpers'
-import { Validator, ValidationBuilder, Required, RequiredString } from '@/application/validation'
-
-type Card = {
-  number: number
-  expirationMoth: number
-  expirationYear: number
-  securityCode: number
-  holderName: string
-}
+import { Validator, ValidationBuilder, Required, RequiredString, RequiredNumber } from '@/application/validation'
 
 type HttpRequest = {
   productsIds: string[]
-  card: Card
   cep: string
+  cardNumber: number
+  cardExpirationMoth: number
+  cardExpirationYear: number
+  cardSecurityCode: number
+  cardHolderName: string
 }
 
 class MakePurchaseController extends Controller {
@@ -29,36 +25,46 @@ class MakePurchaseController extends Controller {
     }
   }
 
-  override buildValidators ({ productsIds, cep, card }: HttpRequest): Validator[] {
+  override buildValidators ({
+    productsIds,
+    cep,
+    cardExpirationMoth,
+    cardExpirationYear,
+    cardHolderName,
+    cardNumber,
+    cardSecurityCode
+  }: HttpRequest): Validator[] {
     return [
       ...ValidationBuilder.of({ fieldValue: productsIds, fieldName: 'productsIds' })
         .required().build(),
       ...ValidationBuilder.of({ fieldValue: cep, fieldName: 'cep' })
         .required().build(),
-      ...ValidationBuilder.of({ fieldValue: card, fieldName: 'card' })
+      ...ValidationBuilder.of({ fieldValue: cardExpirationMoth, fieldName: 'cardExpirationMoth' })
+        .required().build(),
+      ...ValidationBuilder.of({ fieldValue: cardExpirationYear, fieldName: 'cardExpirationYear' })
+        .required().build(),
+      ...ValidationBuilder.of({ fieldValue: cardHolderName, fieldName: 'cardHolderName' })
+        .required().build(),
+      ...ValidationBuilder.of({ fieldValue: cardNumber, fieldName: 'cardNumber' })
+        .required().build(),
+      ...ValidationBuilder.of({ fieldValue: cardSecurityCode, fieldName: 'cardSecurityCode' })
         .required().build()
     ]
   }
 }
 
 describe('MakePurchaseController', () => {
+  let httpRequest: HttpRequest
   let sut: MakePurchaseController
-  let productsIds: string[]
-  let cep: string
-  let card: Card
-
   beforeEach(() => {
-    productsIds = [
-      'any_id',
-      'other_id'
-    ]
-    cep = '94750-000'
-    card = {
-      expirationMoth: 4,
-      expirationYear: 2021,
-      holderName: 'Joao M',
-      number: 2123123422,
-      securityCode: 876
+    httpRequest = {
+      productsIds: ['any_id', 'other_id'],
+      cep: '94750-000',
+      cardExpirationMoth: 4,
+      cardExpirationYear: 2021,
+      cardHolderName: 'Joao M',
+      cardNumber: 2123123422,
+      cardSecurityCode: 876
     }
   })
   beforeEach(() => {
@@ -70,16 +76,16 @@ describe('MakePurchaseController', () => {
   })
 
   it('should build validators', async () => {
-    const validators = sut.buildValidators({
-      productsIds,
-      cep,
-      card
-    })
+    const validators = sut.buildValidators(httpRequest)
 
     expect(validators).toEqual([
-      new Required(productsIds, 'productsIds'),
-      new RequiredString(cep, 'cep'),
-      new Required(card, 'card')
+      new Required(httpRequest.productsIds, 'productsIds'),
+      new RequiredString(httpRequest.cep, 'cep'),
+      new RequiredNumber(httpRequest.cardExpirationMoth, 'cardExpirationMoth'),
+      new RequiredNumber(httpRequest.cardExpirationYear, 'cardExpirationYear'),
+      new RequiredString(httpRequest.cardHolderName, 'cardHolderName'),
+      new RequiredNumber(httpRequest.cardNumber, 'cardNumber'),
+      new RequiredNumber(httpRequest.cardSecurityCode, 'cardSecurityCode')
     ])
   })
 })
