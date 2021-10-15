@@ -1,6 +1,7 @@
 import { Controller } from '.'
 import { HttpResponse, ok } from '@/application/helpers'
 import { Validator, ValidationBuilder } from '@/application/validation'
+import { LoadProducts } from '@/domain/use-cases'
 
 type HttpRequest = {
   limit: string
@@ -8,7 +9,7 @@ type HttpRequest = {
 }
 
 export class LoadProductsController extends Controller {
-  constructor (private readonly loadProducts: any) {
+  constructor (private readonly loadProducts: LoadProducts) {
     super()
   }
 

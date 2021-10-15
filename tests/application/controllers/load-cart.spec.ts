@@ -1,10 +1,11 @@
 import { Controller, LoadCartInfoController } from '@/application/controllers'
 import { Required } from '@/application/validation'
 import { LocalCartProducts } from '@/domain/entities'
+import { LoadCartInfo } from '@/domain/use-cases'
 
 describe('LoadCartInfoController', () => {
   let sut: LoadCartInfoController
-  let loadCartInfo: jest.Mock
+  let loadCartInfo: LoadCartInfo
   let localProducts: LocalCartProducts
 
   beforeAll(() => {

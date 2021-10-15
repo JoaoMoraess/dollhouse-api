@@ -1,9 +1,10 @@
 import { Controller, LoadProductsController } from '@/application/controllers'
 import { Required } from '@/application/validation'
+import { LoadProducts } from '@/domain/use-cases'
 
 describe('LoadProductsController', () => {
   let sut: LoadProductsController
-  let loadProducts: any
+  let loadProducts: LoadProducts
   let limit: string
   let offset: string
 
