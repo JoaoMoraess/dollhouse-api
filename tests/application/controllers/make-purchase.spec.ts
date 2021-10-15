@@ -1,5 +1,5 @@
 import { Controller } from '@/application/controllers'
-import { HttpResponse } from '@/application/helpers'
+import { HttpResponse, noContent } from '@/application/helpers'
 import { Validator, ValidationBuilder, Required, RequiredString, RequiredNumber } from '@/application/validation'
 
 type HttpRequest = {
@@ -18,11 +18,8 @@ class MakePurchaseController extends Controller {
     super()
   }
 
-  override async perform (httpRequest: HttpRequest): Promise<HttpResponse<any>> {
-    return {
-      statusCode: 200,
-      data: ''
-    }
+  override async perform (httpRequest: HttpRequest): Promise<HttpResponse<null>> {
+    return noContent()
   }
 
   override buildValidators ({
@@ -87,5 +84,10 @@ describe('MakePurchaseController', () => {
       new RequiredNumber(httpRequest.cardNumber, 'cardNumber'),
       new RequiredNumber(httpRequest.cardSecurityCode, 'cardSecurityCode')
     ])
+  })
+  it('should return noContent on success', async () => {
+    const httpResponse = await sut.handle(httpRequest)
+
+    expect(httpResponse).toEqual(noContent())
   })
 })
