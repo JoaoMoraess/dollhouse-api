@@ -1,33 +1,74 @@
 import { mock, MockProxy } from 'jest-mock-extended'
+import { ChargePurchase } from '@/domain/contracts/gateways'
+import { LoadProductsByIds } from '../contracts/repos'
 
-interface ChargePurchase {
-  charge: (input: any) => void
+type Input = {
+  productsIds: string[]
+  cep: string
+  cardNumber: string
+  cardExpirationMoth: string
+  cardExpirationYear: string
+  cardSecurityCode: string
+  cardHolderName: string
 }
 
-type MakePurchase = (input: any) => Promise<void>
+type MakePurchase = (input: Input) => Promise<void>
 
-type SetupMakePurchase = (chargePurchase: ChargePurchase) => MakePurchase
+type SetupMakePurchase = (productsRepo: LoadProductsByIds, chargePurchase: ChargePurchase) => MakePurchase
 
-const setupMakePurchase: SetupMakePurchase = chargePurchase => async input => {
-  await chargePurchase.charge(input)
+const setupMakePurchase: SetupMakePurchase = (productsRepo, chargePurchase) => async input => {
+  await productsRepo.loadByIds(input.productsIds)
 }
 
 describe('MakePurchase', () => {
   let sut: MakePurchase
+  let productsRepo: MockProxy<LoadProductsByIds>
   let chargePurchase: MockProxy<ChargePurchase>
+  let input: Input
 
   beforeAll(() => {
+    input = {
+      productsIds: ['any_id', 'other_id'],
+      cep: '1243-2333',
+      cardNumber: '4111111111111111',
+      cardExpirationMoth: '12',
+      cardExpirationYear: '2030',
+      cardSecurityCode: '123',
+      cardHolderName: 'Joao Moraess'
+    }
     chargePurchase = mock()
-    chargePurchase.charge.mockImplementation(() => {})
+    chargePurchase.charge.mockResolvedValue({
+      paymentResponse: {
+        code: 'any_code',
+        message: 'SUCESS',
+        reference: 1234
+      },
+      id: 'any_id'
+    })
+    productsRepo = mock()
+    productsRepo.loadByIds.mockResolvedValue([{
+      id: 'any_id',
+      imageUrl: 'any_image_url',
+      name: 'any_name',
+      price: 129.70,
+      stock: 3
+    },
+    {
+      id: 'other_id',
+      imageUrl: 'other_image_url',
+      name: 'other_name',
+      price: 129.70,
+      stock: 3
+    }])
   })
   beforeEach(() => {
-    sut = setupMakePurchase(chargePurchase)
+    sut = setupMakePurchase(productsRepo, chargePurchase)
   })
 
-  it('should call changePurchase with correct input', async () => {
-    await sut({})
+  it('should call productsRepo.loadByIds with correct input', async () => {
+    await sut(input)
 
-    expect(chargePurchase.charge).toHaveBeenCalledWith({})
-    expect(chargePurchase.charge).toHaveBeenCalledTimes(1)
+    expect(productsRepo.loadByIds).toHaveBeenCalledWith(input.productsIds)
+    expect(productsRepo.loadByIds).toHaveBeenCalledTimes(1)
   })
 })
