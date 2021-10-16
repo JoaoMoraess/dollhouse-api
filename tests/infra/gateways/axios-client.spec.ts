@@ -45,8 +45,13 @@ describe('AxiosHttpClient', () => {
     expect(fakeAxios.post).toHaveBeenCalledWith(url, data)
   })
 
-  it('should return data on success', async () => {
+  it('should get return data on success', async () => {
     const result = await sut.get({ params, url })
+
+    expect(result).toEqual('any_data')
+  })
+  it('should post return data on success', async () => {
+    const result = await sut.post({ data, url })
 
     expect(result).toEqual('any_data')
   })
