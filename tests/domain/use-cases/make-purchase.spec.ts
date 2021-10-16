@@ -1,6 +1,6 @@
 import { mock, MockProxy } from 'jest-mock-extended'
 import { ChargePurchase } from '@/domain/contracts/gateways'
-import { LoadProductsByIds } from '../contracts/repos'
+import { LoadProductsByIds } from '@/domain/contracts/repos'
 
 type Input = {
   productsIds: string[]
@@ -17,7 +17,20 @@ type MakePurchase = (input: Input) => Promise<void>
 type SetupMakePurchase = (productsRepo: LoadProductsByIds, chargePurchase: ChargePurchase) => MakePurchase
 
 const setupMakePurchase: SetupMakePurchase = (productsRepo, chargePurchase) => async input => {
-  await productsRepo.loadByIds(input.productsIds)
+  const products = await productsRepo.loadByIds(input.productsIds)
+  const total = products.reduce((acc, product) => product.price + acc, 0)
+  const totalInCents = total * 100
+  await chargePurchase.charge({
+    ammoutInCents: totalInCents,
+    card: {
+      brand: 'VISA',
+      expirationMoth: input.cardExpirationMoth,
+      expirationYear: input.cardExpirationYear,
+      holderName: input.cardHolderName,
+      number: input.cardNumber,
+      securityCode: input.cardSecurityCode
+    }
+  })
 }
 
 describe('MakePurchase', () => {
@@ -70,5 +83,21 @@ describe('MakePurchase', () => {
 
     expect(productsRepo.loadByIds).toHaveBeenCalledWith(input.productsIds)
     expect(productsRepo.loadByIds).toHaveBeenCalledTimes(1)
+  })
+  it('should call chargePurchase.charge with corect input', async () => {
+    await sut(input)
+
+    expect(chargePurchase.charge).toHaveBeenCalledWith({
+      ammoutInCents: (129.70 + 129.70) * 100,
+      card: {
+        brand: 'VISA',
+        expirationMoth: input.cardExpirationMoth,
+        expirationYear: input.cardExpirationYear,
+        holderName: input.cardHolderName,
+        number: input.cardNumber,
+        securityCode: input.cardSecurityCode
+      }
+    })
+    expect(chargePurchase.charge).toHaveBeenCalledTimes(1)
   })
 })
