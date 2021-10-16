@@ -16,5 +16,6 @@ export namespace HttpPostClient {
   export type Input = {
     url: string
     data: object
+    headers?: Record<string, string>
   }
 }

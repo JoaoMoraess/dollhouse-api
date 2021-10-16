@@ -8,12 +8,16 @@ describe('AxiosHttpClient', () => {
   let url: string
   let params: object
   let data: object
+  let headers: Record<string, string>
   let sut: AxiosHttpClient
 
   beforeAll(() => {
     url = 'any_url'
     params = {
       any_param: 'any'
+    }
+    headers = {
+      any_header: 'header'
     }
     data = {
       any_param: 'any'
@@ -40,9 +44,9 @@ describe('AxiosHttpClient', () => {
   })
 
   it('should call axios.post with correct input', async () => {
-    await sut.post({ data, url })
+    await sut.post({ data, url, headers })
 
-    expect(fakeAxios.post).toHaveBeenCalledWith(url, data)
+    expect(fakeAxios.post).toHaveBeenCalledWith(url, data, { headers })
   })
 
   it('should get return data on success', async () => {
@@ -50,6 +54,7 @@ describe('AxiosHttpClient', () => {
 
     expect(result).toEqual('any_data')
   })
+
   it('should post return data on success', async () => {
     const result = await sut.post({ data, url })
 

@@ -19,6 +19,7 @@
     "test:staged": "yarn test --findRelatedTests",
     "test:coverage": "yarn test --coverage",
     "test:integration": "yarn test --config ./jest.integration.config.js",
+    "test:pagseguro-api": "yarn test:integration -- ./tests/external/pagseguro-api.test.ts",
     "test:coveralls": "yarnest:coverage && coveralls < coverage/lcov.info"
   },
   "devDependencies": {
