@@ -2,6 +2,10 @@ import { mock, MockProxy } from 'jest-mock-extended'
 import { ChargePurchase } from '@/domain/contracts/gateways'
 import { LoadProductsByIds } from '@/domain/contracts/repos'
 
+interface SaveOrder {
+  save: (input: any) => Promise<void>
+}
+
 type Input = {
   productsIds: string[]
   cep: string
@@ -14,13 +18,17 @@ type Input = {
 
 type MakePurchase = (input: Input) => Promise<void>
 
-type SetupMakePurchase = (productsRepo: LoadProductsByIds, chargePurchase: ChargePurchase) => MakePurchase
+type SetupMakePurchase = (
+  productsRepo: LoadProductsByIds,
+  chargePurchase: ChargePurchase,
+  ordersRepo: SaveOrder
+) => MakePurchase
 
-const setupMakePurchase: SetupMakePurchase = (productsRepo, chargePurchase) => async input => {
+const setupMakePurchase: SetupMakePurchase = (productsRepo, chargePurchase, ordersRepo) => async input => {
   const products = await productsRepo.loadByIds(input.productsIds)
   const total = products.reduce((acc, product) => product.price + acc, 0)
   const totalInCents = total * 100
-  await chargePurchase.charge({
+  const { id, paymentResponse } = await chargePurchase.charge({
     ammoutInCents: totalInCents,
     card: {
       brand: 'VISA',
@@ -31,12 +39,16 @@ const setupMakePurchase: SetupMakePurchase = (productsRepo, chargePurchase) => a
       securityCode: input.cardSecurityCode
     }
   })
+  if (paymentResponse.message === 'SUCESSO') {
+    await ordersRepo.save({ id, productsIds: input.productsIds, cep: input.cep })
+  }
 }
 
 describe('MakePurchase', () => {
   let sut: MakePurchase
   let productsRepo: MockProxy<LoadProductsByIds>
   let chargePurchase: MockProxy<ChargePurchase>
+  let ordersRepo: MockProxy<SaveOrder>
   let input: Input
 
   beforeAll(() => {
@@ -53,7 +65,7 @@ describe('MakePurchase', () => {
     chargePurchase.charge.mockResolvedValue({
       paymentResponse: {
         code: 'any_code',
-        message: 'SUCESS',
+        message: 'SUCESSO',
         reference: 1234
       },
       id: 'any_id'
@@ -73,9 +85,11 @@ describe('MakePurchase', () => {
       price: 129.70,
       stock: 3
     }])
+    ordersRepo = mock()
+    ordersRepo.save.mockResolvedValue()
   })
   beforeEach(() => {
-    sut = setupMakePurchase(productsRepo, chargePurchase)
+    sut = setupMakePurchase(productsRepo, chargePurchase, ordersRepo)
   })
 
   it('should call productsRepo.loadByIds with correct input', async () => {
@@ -99,5 +113,11 @@ describe('MakePurchase', () => {
       }
     })
     expect(chargePurchase.charge).toHaveBeenCalledTimes(1)
+  })
+  it('should call ordersRepo.save with correct input', async () => {
+    await sut(input)
+
+    expect(ordersRepo.save).toHaveBeenCalledWith({ id: 'any_id', productsIds: input.productsIds, cep: input.cep })
+    expect(ordersRepo.save).toHaveBeenCalledTimes(1)
   })
 })
