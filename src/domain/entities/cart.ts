@@ -25,7 +25,7 @@ export class CartManager {
       ...product,
       quantity: localProducts[product.id]
     }))
-    this.subTotal = Number(this.products.reduce((acc, product) => acc + Number(product.price) * product.quantity, 0).toFixed(2))
+    this.subTotal = this.products.reduce((acc, product) => acc + product.price * product.quantity, 0)
   }
 
   validate (): Error | undefined {

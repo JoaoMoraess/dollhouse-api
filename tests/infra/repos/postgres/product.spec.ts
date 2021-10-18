@@ -14,7 +14,7 @@ describe('PgProductRepository', () => {
       id: 'any_id',
       imageUrl: 'any_image_url',
       name: 'any_name',
-      price: 12.79,
+      price: 1279,
       stock: 2
     }])
   })
@@ -30,7 +30,7 @@ describe('PgProductRepository', () => {
         id: 'any_id',
         imageUrl: 'any_image_url',
         name: 'any_name',
-        price: 12.79,
+        price: 1279,
         stock: 2
       }])
     })
@@ -50,7 +50,7 @@ describe('PgProductRepository', () => {
         id: 'any_id',
         imageUrl: 'any_image_url',
         name: 'any_name',
-        price: 12.79,
+        price: 1279,
         stock: 2
       }])
     })

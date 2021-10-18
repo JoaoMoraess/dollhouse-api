@@ -14,6 +14,6 @@ model Product {
   id       String @id
   name     String
   stock    Int    @default(0)
-  price    Float
+  price    Int
   imageUrl String
 }

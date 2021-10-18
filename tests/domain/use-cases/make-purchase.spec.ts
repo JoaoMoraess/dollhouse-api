@@ -85,14 +85,14 @@ describe('MakePurchase', () => {
       id: 'any_id',
       imageUrl: 'any_image_url',
       name: 'any_name',
-      price: 129.70,
+      price: 12970,
       stock: 3
     },
     {
       id: 'other_id',
       imageUrl: 'other_image_url',
       name: 'other_name',
-      price: 129.70,
+      price: 12970,
       stock: 3
     }])
 
@@ -134,7 +134,7 @@ describe('MakePurchase', () => {
     await sut(input)
 
     expect(chargePurchase.charge).toHaveBeenCalledWith({
-      ammoutInCents: Number((((129.70 + 129.70) * 100) + deliveryPrice).toFixed()),
+      ammoutInCents: ((12970 + 12970) * 100) + deliveryPrice,
       card: {
         brand: 'VISA',
         expirationMoth: input.cardExpirationMoth,

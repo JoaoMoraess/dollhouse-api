@@ -14,14 +14,14 @@ describe('CartManager', () => {
       id: 'any_id',
       imageUrl: 'any_image_url',
       name: 'any_name',
-      price: 125.85,
+      price: 12585,
       stock: 1
     },
     {
       id: 'other_id',
       imageUrl: 'other_image_url',
       name: 'other_name',
-      price: 125.90,
+      price: 12590,
       stock: 3
     }]
   })
@@ -33,7 +33,7 @@ describe('CartManager', () => {
       id: 'any_id',
       imageUrl: 'any_image_url',
       name: 'any_name',
-      price: 125.85,
+      price: 12585,
       quantity: 1,
       stock: 1
     },
@@ -41,7 +41,7 @@ describe('CartManager', () => {
       id: 'other_id',
       imageUrl: 'other_image_url',
       name: 'other_name',
-      price: 125.90,
+      price: 12590,
       quantity: 2,
       stock: 3
     }])
@@ -49,7 +49,7 @@ describe('CartManager', () => {
   it('should calc subTotal correctly', () => {
     const sut = new CartManager(localProducts, dbProducts)
 
-    expect(sut.subTotal).toBe(377.65)
+    expect(sut.subTotal).toBe(37765)
   })
   it('should not return a error if localProducts ids match with dbProducts', () => {
     localProducts = {
@@ -65,7 +65,7 @@ describe('CartManager', () => {
       id: 'any_id',
       imageUrl: 'any_image_url',
       name: 'any_name',
-      price: 125.85,
+      price: 12585,
       stock: 1
     }]
     const sut = new CartManager(localProducts, dbProducts)

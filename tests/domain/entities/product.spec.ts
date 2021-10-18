@@ -14,14 +14,14 @@ describe('ProductStockManager', () => {
       id: 'any_id',
       imageUrl: 'any_image_url',
       name: 'any_name',
-      price: 125.85,
+      price: 12585,
       stock: 1
     },
     {
       id: 'other_id',
       imageUrl: 'other_image_url',
       name: 'other_name',
-      price: 125.90,
+      price: 12590,
       stock: 3
     }]
   })
