@@ -1,8 +1,8 @@
 import { mock, MockProxy } from 'jest-mock-extended'
 import { ChargePurchase } from '@/domain/contracts/gateways'
-import { LoadProductsByIds } from '@/domain/contracts/repos'
+import { LoadProductsByIds, SaveOrder } from '@/domain/contracts/repos'
 import { InvalidCartError } from '@/domain/entities/errors'
-import { DeliVeryCalculator, Input, MakePurchase, SaveOrder, setupMakePurchase } from '@/domain/use-cases'
+import { DeliVeryCalculator, Input, MakePurchase, setupMakePurchase } from '@/domain/use-cases'
 
 describe('MakePurchase', () => {
   let sut: MakePurchase
@@ -104,7 +104,14 @@ describe('MakePurchase', () => {
       total: 12970 + 12970 + deliveryPrice,
       subTotal: 12970 + 12970,
       deliveryCost: deliveryPrice,
-      products: input.localProducts,
+      products: [{
+        productId: 'any_id',
+        quantity: 1
+      },
+      {
+        productId: 'other_id',
+        quantity: 1
+      }],
       cep: input.cep
     })
     expect(ordersRepo.save).toHaveBeenCalledTimes(1)
