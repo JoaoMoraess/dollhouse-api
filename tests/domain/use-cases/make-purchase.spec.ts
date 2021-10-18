@@ -153,4 +153,28 @@ describe('MakePurchase', () => {
     expect(ordersRepo.save).toHaveBeenCalledWith({ id: 'any_id', productsIds: input.productsIds, cep: input.cep })
     expect(ordersRepo.save).toHaveBeenCalledTimes(1)
   })
+  it('should rethrow if productsRepo throws', async () => {
+    productsRepo.loadByIds.mockRejectedValueOnce(new Error('productRepo_error'))
+    const promise = sut(input)
+
+    await expect(promise).rejects.toThrow(new Error('productRepo_error'))
+  })
+  it('should rethrow if ordersRepo throws', async () => {
+    ordersRepo.save.mockRejectedValueOnce(new Error('ordersRepo_error'))
+    const promise = sut(input)
+
+    await expect(promise).rejects.toThrow(new Error('ordersRepo_error'))
+  })
+  it('should rethrow if ordersRepo throws', async () => {
+    deliveryCalculator.calc.mockRejectedValueOnce(new Error('deliveryCalculator_error'))
+    const promise = sut(input)
+
+    await expect(promise).rejects.toThrow(new Error('deliveryCalculator_error'))
+  })
+  it('should rethrow if ordersRepo throws', async () => {
+    chargePurchase.charge.mockRejectedValueOnce(new Error('chargePurchase_error'))
+    const promise = sut(input)
+
+    await expect(promise).rejects.toThrow(new Error('chargePurchase_error'))
+  })
 })
