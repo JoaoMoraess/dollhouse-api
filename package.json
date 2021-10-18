@@ -3,6 +3,30 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "description": "Api para E-Comerce com base em Clean Architecture e TDD.",
+  "keywords": [
+    "clean code",
+    "api",
+    "e-comerce",
+    "loja virtual com node",
+    "tdd",
+    "ddd",
+    "solid",
+    "design patterns",
+    "clean architecture",
+    "prisma",
+    "node",
+    "typescript",
+    "jest"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JoaoMoraess/dollhouse-api.git"
+  },
+  "author": {
+    "name": "Joao Moraess",
+    "email": "joaomorais.cirne@gmail.com"
+  },
   "scripts": {
     "start": "node -r dotenv/config dist/main",
     "dev": "ts-node-dev --respawn --transpile-only --clear -r dotenv/config --inspect=0.0.0.0:9229 src/main",
@@ -53,5 +77,8 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "module-alias": "^2.2.2"
+  },
+  "engines": {
+    "node": "16.x"
   }
 }
