@@ -54,7 +54,8 @@ describe('LoadCartInfo', () => {
 
   it('should return NoLongerInStock if stockManager return a object', async () => {
     localProducts = {
-      any_id: 4
+      any_id: 4,
+      other_id: 2
     }
     const promise = sut({ localProducts })
     await expect(promise).rejects.toThrow(new NoLongerInStock('any_name', 2))

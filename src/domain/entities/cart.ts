@@ -25,6 +25,6 @@ export class CartManager {
 
   validate (): Error | undefined {
     const ids = Object.keys(this.localProducts)
-    if (this.dbProducts.length < ids.length) return new InvalidCartError()
+    if (this.dbProducts.length !== ids.length) return new InvalidCartError()
   }
 }

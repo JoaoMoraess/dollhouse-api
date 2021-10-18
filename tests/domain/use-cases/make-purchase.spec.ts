@@ -1,7 +1,8 @@
 import { mock, MockProxy } from 'jest-mock-extended'
 import { ChargePurchase } from '@/domain/contracts/gateways'
 import { LoadProductsByIds } from '@/domain/contracts/repos'
-import { LocalProducts, ProductStockManager } from '@/domain/entities'
+import { CartManager, LocalProducts, ProductStockManager } from '@/domain/entities'
+import { InvalidCartError } from '@/domain/entities/errors'
 
 interface SaveOrder {
   save: (input: any) => Promise<void>
@@ -40,16 +41,16 @@ const setupMakePurchase: SetupMakePurchase = (
   const productsIds = Object.keys(input.localProducts)
   const products = await productsRepo.loadByIds(productsIds)
 
+  const cartManager = new CartManager(input.localProducts, products)
   const stockManager = new ProductStockManager(input.localProducts, products)
 
-  const error = stockManager.validate()
+  const error = cartManager.validate() ?? stockManager.validate()
   if (error !== undefined) throw error
 
-  const subTotal = products.reduce((acc, product) => product.price + acc, 0)
-  const subTotalInCents = subTotal * 100
+  const subTotal = cartManager.subTotal
+  const deliveryCost = await deliveryCalculator.calc({ cep: input.cep })
 
-  const deliveryAmmout = await deliveryCalculator.calc({ cep: input.cep })
-  const totalInCents = subTotalInCents + deliveryAmmout
+  const totalInCents = subTotal + deliveryCost
 
   const { id, paymentResponse } = await chargePurchase.charge({
     ammoutInCents: totalInCents,
@@ -63,7 +64,14 @@ const setupMakePurchase: SetupMakePurchase = (
     }
   })
   if (paymentResponse.message === 'SUCESSO') {
-    await ordersRepo.save({ id, productsIds: productsIds, cep: input.cep })
+    await ordersRepo.save({
+      pagSeguroId: id,
+      total: totalInCents,
+      subTotal: subTotal,
+      deliveryCost,
+      products: input.localProducts,
+      cep: input.cep
+    })
   }
 }
 
@@ -82,7 +90,7 @@ describe('MakePurchase', () => {
       brand: 'VISA',
       localProducts: {
         any_id: 1,
-        other_id: 2
+        other_id: 1
       },
       cep: '1243-2333',
       cardNumber: '4111111111111111',
@@ -146,7 +154,7 @@ describe('MakePurchase', () => {
     await sut(input)
 
     expect(chargePurchase.charge).toHaveBeenCalledWith({
-      ammoutInCents: ((12970 + 12970) * 100) + deliveryPrice,
+      ammoutInCents: 12970 + 12970 + deliveryPrice,
       card: {
         brand: 'VISA',
         expirationMoth: input.cardExpirationMoth,
@@ -162,7 +170,14 @@ describe('MakePurchase', () => {
   it('should call ordersRepo.save with correct input', async () => {
     await sut(input)
 
-    expect(ordersRepo.save).toHaveBeenCalledWith({ id: 'any_id', productsIds: Object.keys(input.localProducts), cep: input.cep })
+    expect(ordersRepo.save).toHaveBeenCalledWith({
+      pagSeguroId: 'any_id',
+      total: 12970 + 12970 + deliveryPrice,
+      subTotal: 12970 + 12970,
+      deliveryCost: deliveryPrice,
+      products: input.localProducts,
+      cep: input.cep
+    })
     expect(ordersRepo.save).toHaveBeenCalledTimes(1)
   })
   it('should rethrow if productsRepo throws', async () => {
@@ -188,5 +203,13 @@ describe('MakePurchase', () => {
     const promise = sut(input)
 
     await expect(promise).rejects.toThrow(new Error('chargePurchase_error'))
+  })
+  it('should throw if invalid products are provided', async () => {
+    input.localProducts = {
+      invalid_id: 1
+    }
+    const promise = sut(input)
+
+    await expect(promise).rejects.toThrow(new InvalidCartError())
   })
 })
