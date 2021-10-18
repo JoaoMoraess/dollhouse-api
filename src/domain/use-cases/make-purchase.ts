@@ -7,9 +7,9 @@ export interface DeliVeryCalculator {
 }
 
 export type Input = {
-  brand: 'VISA' | 'MASTERCARD' | 'AMEX' | 'ELO' | 'HIPERCARD' | 'HIPER' | 'DINERS'
   localProducts: LocalProducts
   cep: string
+  cardBrand: 'VISA' | 'MASTERCARD' | 'AMEX' | 'ELO' | 'HIPERCARD' | 'HIPER' | 'DINERS'
   cardNumber: string
   cardExpirationMoth: string
   cardExpirationYear: string
@@ -53,7 +53,7 @@ export const setupMakePurchase: SetupMakePurchase = (
   const { id, paymentResponse } = await chargePurchase.charge({
     ammoutInCents: totalInCents,
     card: {
-      brand: input.brand,
+      brand: input.cardBrand,
       expirationMoth: input.cardExpirationMoth,
       expirationYear: input.cardExpirationYear,
       holderName: input.cardHolderName,

@@ -1,14 +1,16 @@
 import { Controller, MakePurchaseController } from '@/application/controllers'
 import { noContent } from '@/application/helpers'
-import { Required, RequiredString, RequiredNumber } from '@/application/validation'
+import { Required, RequiredString } from '@/application/validation'
+import { LocalProducts } from '@/domain/entities'
 
 type HttpRequest = {
-  productsIds: string[]
+  localProducts: LocalProducts
   cep: string
-  cardNumber: number
-  cardExpirationMoth: number
-  cardExpirationYear: number
-  cardSecurityCode: number
+  cardBrand: 'VISA' | 'MASTERCARD' | 'AMEX' | 'ELO' | 'HIPERCARD' | 'HIPER' | 'DINERS'
+  cardNumber: string
+  cardExpirationMoth: string
+  cardExpirationYear: string
+  cardSecurityCode: string
   cardHolderName: string
 }
 
@@ -19,13 +21,17 @@ describe('MakePurchaseController', () => {
 
   beforeAll(() => {
     httpRequest = {
-      productsIds: ['any_id', 'other_id'],
+      localProducts: {
+        any_id: 1,
+        other_id: 2
+      },
+      cardBrand: 'VISA',
       cep: '94750-000',
-      cardExpirationMoth: 4,
-      cardExpirationYear: 2021,
+      cardExpirationMoth: '4',
+      cardExpirationYear: '2021',
       cardHolderName: 'Joao M',
-      cardNumber: 2123123422,
-      cardSecurityCode: 876
+      cardNumber: '2123123422',
+      cardSecurityCode: '876'
     }
     makePurchase = jest.fn().mockResolvedValue(() => {})
   })
@@ -41,13 +47,14 @@ describe('MakePurchaseController', () => {
     const validators = sut.buildValidators(httpRequest)
 
     expect(validators).toEqual([
-      new Required(httpRequest.productsIds, 'productsIds'),
+      new Required(httpRequest.localProducts, 'localProducts'),
       new RequiredString(httpRequest.cep, 'cep'),
-      new RequiredNumber(httpRequest.cardExpirationMoth, 'cardExpirationMoth'),
-      new RequiredNumber(httpRequest.cardExpirationYear, 'cardExpirationYear'),
+      new RequiredString(httpRequest.cardExpirationMoth, 'cardExpirationMoth'),
+      new RequiredString(httpRequest.cardBrand, 'cardBrand'),
+      new RequiredString(httpRequest.cardExpirationYear, 'cardExpirationYear'),
       new RequiredString(httpRequest.cardHolderName, 'cardHolderName'),
-      new RequiredNumber(httpRequest.cardNumber, 'cardNumber'),
-      new RequiredNumber(httpRequest.cardSecurityCode, 'cardSecurityCode')
+      new RequiredString(httpRequest.cardNumber, 'cardNumber'),
+      new RequiredString(httpRequest.cardSecurityCode, 'cardSecurityCode')
     ])
   })
   it('should call makePurchase with correct input', async () => {

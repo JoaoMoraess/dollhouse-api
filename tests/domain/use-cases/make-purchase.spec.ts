@@ -16,7 +16,7 @@ describe('MakePurchase', () => {
   beforeAll(() => {
     deliveryPrice = 7089
     input = {
-      brand: 'VISA',
+      cardBrand: 'VISA',
       localProducts: {
         any_id: 1,
         other_id: 1
