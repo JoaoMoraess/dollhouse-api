@@ -11,9 +11,20 @@ generator client {
 }
 
 model Product {
-  id       String @id
+  id       String  @id
   name     String
-  stock    Int    @default(0)
+  stock    Int     @default(0)
   price    Int
   imageUrl String
+  orders   Order[]
+}
+
+model Order {
+  id          String    @id
+  total       Int
+  cep         String
+  pagSeguroId String
+  products    Product[]
+  confirmed   Boolean
+  sent        Boolean
 }
