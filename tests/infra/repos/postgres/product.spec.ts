@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 import { DeepMockProxy, mockDeep } from 'jest-mock-extended'
 import { PgProductRepository } from '@/infra/repos/postgres'
-
+import { Repository } from '@/infra/repos/postgres/repository'
 describe('PgProductRepository', () => {
   let sut: PgProductRepository
   let prismaMock: DeepMockProxy<PrismaClient>
@@ -21,6 +21,10 @@ describe('PgProductRepository', () => {
   beforeEach(() => {
     sut = new PgProductRepository()
     sut.prisma = prismaMock
+  })
+
+  it('should extends Repository', async () => {
+    expect(sut).toBeInstanceOf(Repository)
   })
 
   describe('LoadByIds()', () => {
