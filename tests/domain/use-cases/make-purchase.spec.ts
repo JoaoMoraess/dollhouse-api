@@ -6,6 +6,10 @@ interface SaveOrder {
   save: (input: any) => Promise<void>
 }
 
+interface DeliVeryCalculator {
+  calc: (input: any) => Promise<number>
+}
+
 type Input = {
   productsIds: string[]
   cep: string
@@ -20,14 +24,25 @@ type MakePurchase = (input: Input) => Promise<void>
 
 type SetupMakePurchase = (
   productsRepo: LoadProductsByIds,
-  chargePurchase: ChargePurchase,
-  ordersRepo: SaveOrder
+  ordersRepo: SaveOrder,
+  deliveryCalculator: DeliVeryCalculator,
+  chargePurchase: ChargePurchase
 ) => MakePurchase
 
-const setupMakePurchase: SetupMakePurchase = (productsRepo, chargePurchase, ordersRepo) => async input => {
+const setupMakePurchase: SetupMakePurchase = (
+  productsRepo,
+  ordersRepo,
+  deliveryCalculator,
+  chargePurchase
+) => async input => {
   const products = await productsRepo.loadByIds(input.productsIds)
-  const total = products.reduce((acc, product) => product.price + acc, 0)
-  const totalInCents = total * 100
+
+  const subTotal = products.reduce((acc, product) => product.price + acc, 0)
+  const subTotalInCents = subTotal * 100
+
+  const deliveryAmmout = await deliveryCalculator.calc({ cep: input.cep })
+  const totalInCents = Number((subTotalInCents + deliveryAmmout).toFixed())
+
   const { id, paymentResponse } = await chargePurchase.charge({
     ammoutInCents: totalInCents,
     card: {
@@ -47,11 +62,14 @@ const setupMakePurchase: SetupMakePurchase = (productsRepo, chargePurchase, orde
 describe('MakePurchase', () => {
   let sut: MakePurchase
   let productsRepo: MockProxy<LoadProductsByIds>
-  let chargePurchase: MockProxy<ChargePurchase>
   let ordersRepo: MockProxy<SaveOrder>
+  let chargePurchase: MockProxy<ChargePurchase>
+  let deliveryCalculator: MockProxy<DeliVeryCalculator>
+  let deliveryPrice: number
   let input: Input
 
   beforeAll(() => {
+    deliveryPrice = 7089
     input = {
       productsIds: ['any_id', 'other_id'],
       cep: '1243-2333',
@@ -61,15 +79,7 @@ describe('MakePurchase', () => {
       cardSecurityCode: '123',
       cardHolderName: 'Joao Moraess'
     }
-    chargePurchase = mock()
-    chargePurchase.charge.mockResolvedValue({
-      paymentResponse: {
-        code: 'any_code',
-        message: 'SUCESSO',
-        reference: 1234
-      },
-      id: 'any_id'
-    })
+
     productsRepo = mock()
     productsRepo.loadByIds.mockResolvedValue([{
       id: 'any_id',
@@ -85,11 +95,25 @@ describe('MakePurchase', () => {
       price: 129.70,
       stock: 3
     }])
+
     ordersRepo = mock()
     ordersRepo.save.mockResolvedValue()
+
+    deliveryCalculator = mock()
+    deliveryCalculator.calc.mockResolvedValue(deliveryPrice)
+
+    chargePurchase = mock()
+    chargePurchase.charge.mockResolvedValue({
+      paymentResponse: {
+        code: 'any_code',
+        message: 'SUCESSO',
+        reference: 1234
+      },
+      id: 'any_id'
+    })
   })
   beforeEach(() => {
-    sut = setupMakePurchase(productsRepo, chargePurchase, ordersRepo)
+    sut = setupMakePurchase(productsRepo, ordersRepo, deliveryCalculator, chargePurchase)
   })
 
   it('should call productsRepo.loadByIds with correct input', async () => {
@@ -98,11 +122,19 @@ describe('MakePurchase', () => {
     expect(productsRepo.loadByIds).toHaveBeenCalledWith(input.productsIds)
     expect(productsRepo.loadByIds).toHaveBeenCalledTimes(1)
   })
+
+  it('should call deliveryCalculator.calc with correct input', async () => {
+    await sut(input)
+
+    expect(deliveryCalculator.calc).toHaveBeenCalledWith({ cep: input.cep })
+    expect(deliveryCalculator.calc).toHaveBeenCalledTimes(1)
+  })
+
   it('should call chargePurchase.charge with corect input', async () => {
     await sut(input)
 
     expect(chargePurchase.charge).toHaveBeenCalledWith({
-      ammoutInCents: (129.70 + 129.70) * 100,
+      ammoutInCents: Number((((129.70 + 129.70) * 100) + deliveryPrice).toFixed()),
       card: {
         brand: 'VISA',
         expirationMoth: input.cardExpirationMoth,
@@ -114,6 +146,7 @@ describe('MakePurchase', () => {
     })
     expect(chargePurchase.charge).toHaveBeenCalledTimes(1)
   })
+
   it('should call ordersRepo.save with correct input', async () => {
     await sut(input)
 
