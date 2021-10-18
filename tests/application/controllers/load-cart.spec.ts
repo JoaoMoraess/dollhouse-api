@@ -1,12 +1,12 @@
 import { Controller, LoadCartInfoController } from '@/application/controllers'
 import { Required } from '@/application/validation'
-import { LocalCartProducts } from '@/domain/entities'
+import { LocalProducts } from '@/domain/entities'
 import { LoadCartInfo } from '@/domain/use-cases'
 
 describe('LoadCartInfoController', () => {
   let sut: LoadCartInfoController
   let loadCartInfo: LoadCartInfo
-  let localProducts: LocalCartProducts
+  let localProducts: LocalProducts
 
   beforeAll(() => {
     localProducts = {

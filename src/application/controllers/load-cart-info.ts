@@ -1,10 +1,10 @@
-import { LocalCartProducts, ProductCartItem } from '@/domain/entities'
+import { LocalProducts, ProductCartItem } from '@/domain/entities'
 import { Controller } from '.'
 import { HttpResponse, ok } from '@/application/helpers'
 import { ValidationBuilder, Validator } from '@/application/validation'
 import { LoadCartInfo } from '@/domain/use-cases'
 
-type HttpRequest = { localProducts: LocalCartProducts }
+type HttpRequest = { localProducts: LocalProducts }
 type Model = { products: ProductCartItem[], subTotal: number }
 
 export class LoadCartInfoController extends Controller {

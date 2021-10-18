@@ -1,8 +1,8 @@
-import { CartManager, LocalCartProducts, Product } from '@/domain/entities'
+import { CartManager, LocalProducts, Product } from '@/domain/entities'
 import { InvalidCartError } from '@/domain/entities/errors'
 
 describe('CartManager', () => {
-  let localProducts: LocalCartProducts
+  let localProducts: LocalProducts
   let dbProducts: Product[]
 
   beforeEach(() => {

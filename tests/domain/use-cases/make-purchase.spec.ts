@@ -1,6 +1,7 @@
 import { mock, MockProxy } from 'jest-mock-extended'
 import { ChargePurchase } from '@/domain/contracts/gateways'
 import { LoadProductsByIds } from '@/domain/contracts/repos'
+import { LocalProducts, ProductStockManager } from '@/domain/entities'
 
 interface SaveOrder {
   save: (input: any) => Promise<void>
@@ -11,7 +12,8 @@ interface DeliVeryCalculator {
 }
 
 type Input = {
-  productsIds: string[]
+  brand: 'VISA' | 'MASTERCARD' | 'AMEX' | 'ELO' | 'HIPERCARD' | 'HIPER' | 'DINERS'
+  localProducts: LocalProducts
   cep: string
   cardNumber: string
   cardExpirationMoth: string
@@ -35,18 +37,24 @@ const setupMakePurchase: SetupMakePurchase = (
   deliveryCalculator,
   chargePurchase
 ) => async input => {
-  const products = await productsRepo.loadByIds(input.productsIds)
+  const productsIds = Object.keys(input.localProducts)
+  const products = await productsRepo.loadByIds(productsIds)
+
+  const stockManager = new ProductStockManager(input.localProducts, products)
+
+  const error = stockManager.validate()
+  if (error !== undefined) throw error
 
   const subTotal = products.reduce((acc, product) => product.price + acc, 0)
   const subTotalInCents = subTotal * 100
 
   const deliveryAmmout = await deliveryCalculator.calc({ cep: input.cep })
-  const totalInCents = Number((subTotalInCents + deliveryAmmout).toFixed())
+  const totalInCents = subTotalInCents + deliveryAmmout
 
   const { id, paymentResponse } = await chargePurchase.charge({
     ammoutInCents: totalInCents,
     card: {
-      brand: 'VISA',
+      brand: input.brand,
       expirationMoth: input.cardExpirationMoth,
       expirationYear: input.cardExpirationYear,
       holderName: input.cardHolderName,
@@ -55,7 +63,7 @@ const setupMakePurchase: SetupMakePurchase = (
     }
   })
   if (paymentResponse.message === 'SUCESSO') {
-    await ordersRepo.save({ id, productsIds: input.productsIds, cep: input.cep })
+    await ordersRepo.save({ id, productsIds: productsIds, cep: input.cep })
   }
 }
 
@@ -71,7 +79,11 @@ describe('MakePurchase', () => {
   beforeAll(() => {
     deliveryPrice = 7089
     input = {
-      productsIds: ['any_id', 'other_id'],
+      brand: 'VISA',
+      localProducts: {
+        any_id: 1,
+        other_id: 2
+      },
       cep: '1243-2333',
       cardNumber: '4111111111111111',
       cardExpirationMoth: '12',
@@ -119,7 +131,7 @@ describe('MakePurchase', () => {
   it('should call productsRepo.loadByIds with correct input', async () => {
     await sut(input)
 
-    expect(productsRepo.loadByIds).toHaveBeenCalledWith(input.productsIds)
+    expect(productsRepo.loadByIds).toHaveBeenCalledWith(Object.keys(input.localProducts))
     expect(productsRepo.loadByIds).toHaveBeenCalledTimes(1)
   })
 
@@ -150,7 +162,7 @@ describe('MakePurchase', () => {
   it('should call ordersRepo.save with correct input', async () => {
     await sut(input)
 
-    expect(ordersRepo.save).toHaveBeenCalledWith({ id: 'any_id', productsIds: input.productsIds, cep: input.cep })
+    expect(ordersRepo.save).toHaveBeenCalledWith({ id: 'any_id', productsIds: Object.keys(input.localProducts), cep: input.cep })
     expect(ordersRepo.save).toHaveBeenCalledTimes(1)
   })
   it('should rethrow if productsRepo throws', async () => {

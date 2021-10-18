@@ -1,13 +1,13 @@
 import { mock, MockProxy } from 'jest-mock-extended'
 import { LoadProductsByIds } from '@/domain/contracts/repos'
 import { InvalidCartError, NoLongerInStock } from '@/domain/entities/errors'
-import { LocalCartProducts } from '@/domain/entities'
+import { LocalProducts } from '@/domain/entities'
 import { LoadCartInfo, setupLoadCartInfo } from '@/domain/use-cases'
 
 describe('LoadCartInfo', () => {
   let sut: LoadCartInfo
   let productsRepo: MockProxy<LoadProductsByIds>
-  let localProducts: LocalCartProducts
+  let localProducts: LocalProducts
 
   beforeEach(() => {
     localProducts = {
@@ -67,6 +67,15 @@ describe('LoadCartInfo', () => {
     }
     const promise = sut({ localProducts })
     await expect(promise).rejects.toThrow(new NoLongerInStock('any_name', 2))
+  })
+  it('should return the first error if find', async () => {
+    localProducts = {
+      any_id: 4,
+      other_id: 99,
+      invalid_id: 999
+    }
+    const promise = sut({ localProducts })
+    await expect(promise).rejects.toThrow(new InvalidCartError())
   })
 
   it('should rethrow productsRepo throw', async () => {

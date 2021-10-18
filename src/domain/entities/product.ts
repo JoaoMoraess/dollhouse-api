@@ -1,4 +1,3 @@
-import { LocalCartProducts } from '.'
 import { NoLongerInStock } from './errors'
 
 export type Product = {
@@ -9,13 +8,19 @@ export type Product = {
   imageUrl: string
 }
 
+type Quantity = number
+
+export type LocalProducts = {
+  [id: string]: Quantity
+}
+
 type OutOfStockProducts = { name: string, inStock: number }
 
 export class ProductStockManager {
   outOfStockProducts?: OutOfStockProducts
 
   constructor (
-    localProducts: LocalCartProducts,
+    localProducts: LocalProducts,
     dbProducts: Product[]
   ) {
     this.outOfStockProducts = dbProducts

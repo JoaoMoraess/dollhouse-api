@@ -1,8 +1,8 @@
-import { LocalCartProducts, Product, ProductStockManager } from '@/domain/entities'
+import { LocalProducts, Product, ProductStockManager } from '@/domain/entities'
 import { NoLongerInStock } from '@/domain/entities/errors'
 
 describe('ProductStockManager', () => {
-  let localProducts: LocalCartProducts
+  let localProducts: LocalProducts
   let dbProducts: Product[]
 
   beforeEach(() => {

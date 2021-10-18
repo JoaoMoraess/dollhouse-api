@@ -1,4 +1,4 @@
-import { Product } from '.'
+import { LocalProducts, Product } from '.'
 import { InvalidCartError } from './errors'
 
 export type ProductCartItem = { quantity: number } & Product
@@ -8,17 +8,12 @@ export type CartInfo = {
   subTotal: number
 }
 
-type Quantity = number
-export type LocalCartProducts = {
-  [id: string]: Quantity
-}
-
 export class CartManager {
   products: ProductCartItem[]
   subTotal: number
 
   constructor (
-    private readonly localProducts: LocalCartProducts,
+    private readonly localProducts: LocalProducts,
     private readonly dbProducts: Product[]
   ) {
     this.products = dbProducts.map(product => ({
