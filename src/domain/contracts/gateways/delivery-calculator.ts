@@ -2,8 +2,6 @@ export interface DeliVeryCalculator {
   calc: (input: DeliVeryCalculator.Input) => Promise<DeliVeryCalculator.Output>
 }
 
-export type Service = 'sedex' | 'sedexCobrar' | 'pac' | 'pacCobrar' | 'sedex10' | 'sedex12' | 'sedexHoje'
-
 enum Format {
   boxOrPackage = 1,
   rollOrPrism = 2,
@@ -12,6 +10,7 @@ enum Format {
 
 export namespace DeliVeryCalculator {
   export type Output = number
+  export type Services = 'sedex' | 'sedexCobrar' | 'pac' | 'pacCobrar' | 'sedex10' | 'sedex12' | 'sedexHoje'
   export type Input = {
     cepWithoutIffen: string
     format?: Format
