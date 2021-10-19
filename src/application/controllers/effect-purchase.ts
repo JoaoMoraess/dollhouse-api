@@ -1,7 +1,7 @@
 import { Controller } from '.'
 import { noContent, HttpResponse } from '@/application/helpers'
 import { ValidationBuilder, Validator } from '@/application/validation'
-import { MakePurchase } from '@/domain/use-cases'
+import { EffectPurchase } from '@/domain/use-cases'
 import { LocalProducts } from '@/domain/entities'
 
 type HttpRequest = {
@@ -15,9 +15,9 @@ type HttpRequest = {
   cardHolderName: string
 }
 
-export class MakePurchaseController extends Controller {
+export class EffectPurchaseController extends Controller {
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-  constructor (private readonly makePurchase: MakePurchase) {
+  constructor (private readonly makePurchase: EffectPurchase) {
     super()
   }
 

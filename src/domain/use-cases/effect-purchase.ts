@@ -13,16 +13,16 @@ export type Input = {
   cardHolderName: string
 }
 
-export type MakePurchase = (input: Input) => Promise<void>
+export type EffectPurchase = (input: Input) => Promise<void>
 
-type SetupMakePurchase = (
+type SetupEffectPurchase = (
   productsRepo: LoadProductsByIds,
   ordersRepo: SaveOrder,
   deliveryCalculator: DeliVeryCalculator,
   chargePurchase: ChargePurchase
-) => MakePurchase
+) => EffectPurchase
 
-export const setupMakePurchase: SetupMakePurchase = (
+export const setupEffectPurchase: SetupEffectPurchase = (
   productsRepo,
   ordersRepo,
   deliveryCalculator,

@@ -2,28 +2,7 @@ import { PrismaClient } from '.prisma/client'
 import { SaveOrder } from '@/domain/contracts/repos'
 import { Repository } from '@/infra/repos/postgres/repository'
 import { DeepMockProxy, mockDeep } from 'jest-mock-extended'
-
-export class PgOrderRepository extends Repository implements SaveOrder {
-  async save ({ cep, deliveryCost, pagSeguroId, products, subTotal, total }: SaveOrder.Input): Promise<void> {
-    await this
-      .connect(() => this.prisma.order.create({
-        data: {
-          confirmed: false,
-          pagSeguroId,
-          cep,
-          sent: false,
-          deliveryCost,
-          subTotal,
-          total,
-          products: {
-            createMany: {
-              data: products
-            }
-          }
-        }
-      }))
-  }
-}
+import { PgOrderRepository } from '@/infra/repos/postgres'
 
 describe('PgOrderRepository', () => {
   let sut: PgOrderRepository

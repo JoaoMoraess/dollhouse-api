@@ -1,4 +1,4 @@
-import { Controller, MakePurchaseController } from '@/application/controllers'
+import { Controller, EffectPurchaseController } from '@/application/controllers'
 import { noContent } from '@/application/helpers'
 import { Required, RequiredString } from '@/application/validation'
 import { LocalProducts } from '@/domain/entities'
@@ -14,10 +14,10 @@ type HttpRequest = {
   cardHolderName: string
 }
 
-describe('MakePurchaseController', () => {
+describe('EffectPurchaseController', () => {
   let httpRequest: HttpRequest
-  let sut: MakePurchaseController
-  let makePurchase: jest.Mock
+  let sut: EffectPurchaseController
+  let effectPurchase: jest.Mock
 
   beforeAll(() => {
     httpRequest = {
@@ -33,10 +33,10 @@ describe('MakePurchaseController', () => {
       cardNumber: '2123123422',
       cardSecurityCode: '876'
     }
-    makePurchase = jest.fn().mockResolvedValue(() => {})
+    effectPurchase = jest.fn().mockResolvedValue(() => {})
   })
   beforeEach(() => {
-    sut = new MakePurchaseController(makePurchase)
+    sut = new EffectPurchaseController(effectPurchase)
   })
 
   it('should extend Controller', async () => {
@@ -57,11 +57,11 @@ describe('MakePurchaseController', () => {
       new RequiredString(httpRequest.cardSecurityCode, 'cardSecurityCode')
     ])
   })
-  it('should call makePurchase with correct input', async () => {
+  it('should call effectPurchase with correct input', async () => {
     await sut.handle(httpRequest)
 
-    expect(makePurchase).toHaveBeenCalledWith(httpRequest)
-    expect(makePurchase).toHaveBeenCalledTimes(1)
+    expect(effectPurchase).toHaveBeenCalledWith(httpRequest)
+    expect(effectPurchase).toHaveBeenCalledTimes(1)
   })
   it('should return noContent on success', async () => {
     const httpResponse = await sut.handle(httpRequest)

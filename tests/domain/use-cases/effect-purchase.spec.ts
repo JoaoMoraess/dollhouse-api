@@ -2,10 +2,10 @@ import { mock, MockProxy } from 'jest-mock-extended'
 import { ChargePurchase, DeliVeryCalculator } from '@/domain/contracts/gateways'
 import { LoadProductsByIds, SaveOrder } from '@/domain/contracts/repos'
 import { InvalidCartError } from '@/domain/entities/errors'
-import { Input, MakePurchase, setupMakePurchase } from '@/domain/use-cases'
+import { Input, EffectPurchase, setupEffectPurchase } from '@/domain/use-cases'
 
-describe('MakePurchase', () => {
-  let sut: MakePurchase
+describe('EffectPurchase', () => {
+  let sut: EffectPurchase
   let productsRepo: MockProxy<LoadProductsByIds>
   let ordersRepo: MockProxy<SaveOrder>
   let chargePurchase: MockProxy<ChargePurchase>
@@ -62,7 +62,7 @@ describe('MakePurchase', () => {
     })
   })
   beforeEach(() => {
-    sut = setupMakePurchase(productsRepo, ordersRepo, deliveryCalculator, chargePurchase)
+    sut = setupEffectPurchase(productsRepo, ordersRepo, deliveryCalculator, chargePurchase)
   })
 
   it('should call productsRepo.loadByIds with correct input', async () => {
