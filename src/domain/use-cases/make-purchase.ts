@@ -1,10 +1,6 @@
-import { ChargePurchase } from '@/domain/contracts/gateways'
+import { ChargePurchase, DeliVeryCalculator } from '@/domain/contracts/gateways'
 import { LoadProductsByIds, SaveOrder } from '@/domain/contracts/repos'
 import { CartManager, LocalProducts, ProductStockManager } from '@/domain/entities'
-
-export interface DeliVeryCalculator {
-  calc: (input: any) => Promise<number>
-}
 
 export type Input = {
   localProducts: LocalProducts
@@ -46,7 +42,7 @@ export const setupMakePurchase: SetupMakePurchase = (
     .map((key) => ({ productId: key, quantity: input.localProducts[key] }))
 
   const subTotal = cartManager.subTotal
-  const deliveryCost = await deliveryCalculator.calc({ cep: input.cep })
+  const deliveryCost = await deliveryCalculator.calc({ cepWithoutIffen: input.cep, declaredValue: 0 })
 
   const totalInCents = subTotal + deliveryCost
 

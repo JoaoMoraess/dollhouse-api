@@ -1,8 +1,8 @@
 import { mock, MockProxy } from 'jest-mock-extended'
-import { ChargePurchase } from '@/domain/contracts/gateways'
+import { ChargePurchase, DeliVeryCalculator } from '@/domain/contracts/gateways'
 import { LoadProductsByIds, SaveOrder } from '@/domain/contracts/repos'
 import { InvalidCartError } from '@/domain/entities/errors'
-import { DeliVeryCalculator, Input, MakePurchase, setupMakePurchase } from '@/domain/use-cases'
+import { Input, MakePurchase, setupMakePurchase } from '@/domain/use-cases'
 
 describe('MakePurchase', () => {
   let sut: MakePurchase
@@ -75,7 +75,7 @@ describe('MakePurchase', () => {
   it('should call deliveryCalculator.calc with correct input', async () => {
     await sut(input)
 
-    expect(deliveryCalculator.calc).toHaveBeenCalledWith({ cep: input.cep })
+    expect(deliveryCalculator.calc).toHaveBeenCalledWith({ cepWithoutIffen: input.cep, declaredValue: 0 })
     expect(deliveryCalculator.calc).toHaveBeenCalledTimes(1)
   })
 

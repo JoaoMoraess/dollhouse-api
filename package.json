@@ -44,6 +44,7 @@
     "test:coverage": "yarn test --coverage",
     "test:integration": "yarn test --config ./jest.integration.config.js",
     "test:pagseguro-api": "yarn test:integration -- ./tests/external/pagseguro-api.test.ts",
+    "test:correios-api": "yarn test:integration -- ./tests/external/correios-api.test.ts",
     "test:coveralls": "yarnest:coverage && coveralls < coverage/lcov.info"
   },
   "devDependencies": {
@@ -77,8 +78,10 @@
     "axios": "^0.23.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "frete": "^0.3.2",
     "module-alias": "^2.2.2",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "xml-js": "^1.6.11"
   },
   "engines": {
     "node": "16.x"
