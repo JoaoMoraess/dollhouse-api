@@ -9,7 +9,6 @@
 
 ## Libs e Frameworks
 
-* ### Prisma
 * ### Typescript
 * ### Jest
 * ### Ts-jest
