@@ -36,4 +36,13 @@ describe('Connection', () => {
     const isConnected = await orm.isConnected()
     expect(isConnected).toBeFalsy()
   })
+
+  it('should get the repository', async () => {
+    await sut.connect()
+    const productRepository = sut.getRepository<Product>('Product')
+    const productsCount = await productRepository.count()
+
+    expect(productsCount).toBe(0)
+    await sut.disconnect()
+  })
 })
