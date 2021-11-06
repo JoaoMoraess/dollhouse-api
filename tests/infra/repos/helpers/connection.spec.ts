@@ -29,4 +29,11 @@ describe('Connection', () => {
 
     await sut.disconnect()
   })
+
+  it('should disconnect to database', async () => {
+    await sut.connect()
+    await sut.disconnect()
+    const isConnected = await orm.isConnected()
+    expect(isConnected).toBeFalsy()
+  })
 })
