@@ -4,7 +4,13 @@ import { Repository } from '@/infra/repos/postgres/repository'
 
 export class PgProductRepository extends Repository implements LoadProductsByIds, LoadProductsByOffset {
   async loadByIds (ids: string[]): Promise<Product[]> {
-    return []
+    const productRepository = this.getRepository<Product>('Product')
+    const products = await productRepository.find({
+      id: {
+        $in: ids
+      }
+    })
+    return products
   }
 
   async loadByOffset ({ limit, offset }: {limit: number, offset: number}): Promise<Product[]> {

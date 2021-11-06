@@ -3,31 +3,33 @@ import { Connection, EntityRepository, IDatabaseDriver, MikroORM } from '@mikro-
 export class PgConnection {
   private static instance?: PgConnection
   private connection?: IDatabaseDriver<Connection>
+  private static orm: MikroORM
 
-  private constructor (private readonly orm: MikroORM) {}
+  private constructor () {}
 
-  static getInstance (orm: MikroORM): PgConnection {
-    if (PgConnection.instance === undefined) PgConnection.instance = new PgConnection(orm)
+  static getInstance (orm?: MikroORM): PgConnection {
+    if (PgConnection.instance === undefined) {
+      if (orm !== undefined && orm !== null) {
+        PgConnection.orm = orm
+      }
+      PgConnection.instance = new PgConnection()
+    }
+    if (this.orm === undefined) throw new Error('ORM is not Provider')
     return PgConnection.instance
   }
 
   async connect (): Promise<void> {
-    const isConnected = await this.orm.isConnected()
-    if (!isConnected) {
-      this.connection = await this.orm.connect()
-    } else {
-      console.log('database already connected!')
-    }
+    this.connection = await PgConnection.orm.connect()
   }
 
-  async disconnect (): Promise<void> {
+  async disconnect (force: boolean = false): Promise<void> {
     if (this.connection === undefined) throw new Error('Connection not found')
-    await this.connection.close()
+    await this.connection.close(force)
     this.connection = undefined
   }
 
   getRepository<Entity> (entityName: string): EntityRepository<Entity> {
     if (this.connection === undefined) throw new Error('Connection not found')
-    return this.orm.em.getRepository<Entity>(entityName)
+    return PgConnection.orm.em.getRepository<Entity>(entityName)
   }
 }
