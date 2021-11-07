@@ -1,6 +1,6 @@
 import { MikroORM } from '@mikro-orm/core'
 import { IBackup } from 'pg-mem'
-import { makeFakeDb } from '../mocks/connection'
+import { makeFakeDb } from '../../mocks/connection'
 import { Product } from '@/infra/repos/postgres/entities/Product'
 import { PgConnection } from '@/infra/repos/postgres/helpers/connection'
 
