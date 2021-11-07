@@ -1,6 +1,9 @@
-import { Connection, EntityRepository, IDatabaseDriver, MikroORM } from '@mikro-orm/core'
+import { Connection, EntityManager, EntityRepository, IDatabaseDriver, MikroORM } from '@mikro-orm/core'
+import { AsyncLocalStorage } from 'async_hooks'
 
 export class PgConnection {
+  static storage: AsyncLocalStorage<EntityManager> = new AsyncLocalStorage()
+
   static instance?: PgConnection
   private connection?: IDatabaseDriver<Connection>
   static orm?: MikroORM
