@@ -12,16 +12,21 @@ describe('Connection', () => {
   beforeAll(async () => {
     const fakeDb = await makeFakeDb([Product])
     orm = fakeDb.orm
-    sut = PgConnection.getInstance(orm)
     backup = fakeDb.db.backup()
+  })
+
+  afterEach(async () => {
+    PgConnection.instance = undefined
+    PgConnection.orm = undefined
   })
 
   beforeEach(() => {
     backup.restore()
-    sut = PgConnection.getInstance(orm)
   })
 
   it('should connect on database', async () => {
+    sut = PgConnection.getInstance(orm)
+
     await sut.connect()
     const isConnected = await orm.isConnected()
 
@@ -31,6 +36,8 @@ describe('Connection', () => {
   })
 
   it('should disconnect to database', async () => {
+    sut = PgConnection.getInstance(orm)
+
     await sut.connect()
     await sut.disconnect()
     const isConnected = await orm.isConnected()
@@ -38,11 +45,29 @@ describe('Connection', () => {
   })
 
   it('should get the repository', async () => {
+    sut = PgConnection.getInstance(orm)
+
     await sut.connect()
     const productRepository = sut.getRepository<Product>('Product')
     const productsCount = await productRepository.count()
 
     expect(productsCount).toBe(0)
     await sut.disconnect()
+  })
+
+  it('should return the instace of connection', async () => {
+    sut = PgConnection.getInstance(orm)
+
+    const connection = PgConnection.getInstance()
+    await connection.connect()
+    const isConnected = await orm.isConnected()
+    expect(isConnected).toBeTruthy()
+    await connection.disconnect()
+  })
+
+  it('should throw if orm is not provided', async () => {
+    expect(() => {
+      PgConnection.getInstance()
+    }).toThrow(new Error('ORM is not provided'))
   })
 })
