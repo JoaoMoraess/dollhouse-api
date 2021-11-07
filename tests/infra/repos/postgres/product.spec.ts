@@ -56,4 +56,26 @@ describe('PgProductRepository', () => {
       expect(products).toEqual([entitie1, entitie2])
     })
   })
+  describe('loadByOffset', () => {
+    it('should return a correct offset', async () => {
+      const entitie1 = pgProductRepo.create({
+        id: 'any_id',
+        imageUrl: 'any_image_url',
+        name: 'any_name',
+        price: 2390,
+        stock: 12
+      })
+      const entitie2 = pgProductRepo.create({
+        id: 'other_id',
+        imageUrl: 'other_image_url',
+        name: 'other_name',
+        price: 2930,
+        stock: 16
+      })
+      await pgProductRepo.persistAndFlush([entitie1, entitie2])
+
+      const products = await sut.loadByOffset({ limit: 1, offset: 1 })
+      expect(products).toEqual([entitie2])
+    })
+  })
 })
