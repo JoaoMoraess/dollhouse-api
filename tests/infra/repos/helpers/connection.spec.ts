@@ -70,4 +70,17 @@ describe('Connection', () => {
       PgConnection.getInstance()
     }).toThrow(new Error('ORM is not provided'))
   })
+
+  it('should throw if is not connected', async () => {
+    const sut = PgConnection.getInstance(orm)
+    expect(() => {
+      sut.getRepository<Product>('Product')
+    }).toThrow(new Error('Connection not found'))
+  })
+
+  it('should throw if is not connected', async () => {
+    const sut = PgConnection.getInstance(orm)
+    const promise = sut.disconnect()
+    await expect(promise).rejects.toThrow(new Error('Connection not found'))
+  })
 })
