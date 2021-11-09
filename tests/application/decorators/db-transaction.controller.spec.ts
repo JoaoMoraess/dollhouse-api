@@ -54,4 +54,11 @@ describe('DbTransactionController', () => {
     expect(db.roolback).toHaveBeenCalledWith()
     expect(db.roolback).toHaveBeenCalledTimes(1)
   })
+
+  it('should call db.closeTransaction', async () => {
+    await sut.perform({ any: 'any' })
+
+    expect(db.closeTransaction).toHaveBeenCalled()
+    expect(db.closeTransaction).toHaveBeenCalledTimes(1)
+  })
 })
