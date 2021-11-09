@@ -24,4 +24,10 @@ describe('DbTransactionController', () => {
     expect(db.openTransaction).toHaveBeenCalled()
     expect(db.openTransaction).toHaveBeenCalledTimes(1)
   })
+  it('should call decoratee.perform with correct input', async () => {
+    await sut.perform({ any: 'any' })
+
+    expect(decoratee.perform).toHaveBeenCalledWith({ any: 'any' })
+    expect(decoratee.perform).toHaveBeenCalledTimes(1)
+  })
 })
