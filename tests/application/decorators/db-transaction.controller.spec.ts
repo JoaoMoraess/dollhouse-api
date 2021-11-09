@@ -45,4 +45,13 @@ describe('DbTransactionController', () => {
     expect(db.commit).toHaveBeenCalledWith()
     expect(db.commit).toHaveBeenCalledTimes(1)
   })
+  it('should rethrow and call db.rollback if db.commit fails', async () => {
+    db.commit.mockRejectedValueOnce(new Error('Database Error'))
+
+    const promise = sut.perform({ any: 'any' })
+
+    await expect(promise).rejects.toThrow(new Error('Database Error'))
+    expect(db.roolback).toHaveBeenCalledWith()
+    expect(db.roolback).toHaveBeenCalledTimes(1)
+  })
 })
