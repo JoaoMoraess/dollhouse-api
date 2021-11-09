@@ -1,12 +1,13 @@
+import { DbTransaction } from '@/application/contracts'
 import { Connection, EntityManager, EntityRepository, IDatabaseDriver, MikroORM } from '@mikro-orm/core'
 import { AsyncLocalStorage } from 'async_hooks'
 
-export class PgConnection {
+export class PgConnection implements DbTransaction {
   static storage: AsyncLocalStorage<EntityManager> = new AsyncLocalStorage()
-
   static instance?: PgConnection
-  private connection?: IDatabaseDriver<Connection>
   static orm?: MikroORM
+
+  private connection?: IDatabaseDriver<Connection>
 
   private constructor () {}
 
@@ -22,11 +23,7 @@ export class PgConnection {
   }
 
   async connect (): Promise<void> {
-    if (PgConnection.orm !== undefined || PgConnection.orm !== null) {
-      this.connection = await PgConnection.orm!.connect()
-    } else {
-      throw new Error('ORM is not provided')
-    }
+    this.connection = await PgConnection.orm!.connect()
   }
 
   async disconnect (force: boolean = false): Promise<void> {
@@ -37,10 +34,18 @@ export class PgConnection {
 
   getRepository<Entity> (entityName: string): EntityRepository<Entity> {
     if (this.connection === undefined) throw new Error('Connection not found')
-    if (PgConnection.orm !== undefined || PgConnection.orm !== null) {
-      return PgConnection.orm!.em.getRepository<Entity>(entityName)
-    } else {
-      throw new Error('ORM is not provided')
-    }
+    return PgConnection.orm!.em.getRepository<Entity>(entityName)
+  }
+
+  async openTransaction (): Promise<void> {
+    await PgConnection.orm!.em.begin()
+  }
+
+  async commit (): Promise<void> {
+    await PgConnection.orm!.em.commit()
+  }
+
+  async roolback (): Promise<void> {
+    await PgConnection.orm!.em.rollback()
   }
 }
