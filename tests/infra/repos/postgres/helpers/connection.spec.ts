@@ -13,6 +13,8 @@ describe('Connection', () => {
     orm = mock<MikroORM>()
     orm.em.getRepository = jest.fn().mockReturnValue('any_repository')
     orm.em.begin = jest.fn()
+    orm.em.commit = jest.fn()
+    orm.em.rollback = jest.fn()
     orm.connect.mockResolvedValue(connectionSpy)
     connectionSpy.close.mockResolvedValueOnce()
   })
@@ -87,13 +89,24 @@ describe('Connection', () => {
     await expect(promise).rejects.toThrow(new Error('Connection not found'))
   })
 
-  it('should open transaction', async () => {
+  it('should openTransaction calls MikroOrm.begin', async () => {
     const sut = PgConnection.getInstance(orm)
     await sut.connect()
     await sut.openTransaction()
 
     expect(orm.em.begin).toHaveBeenCalledWith()
     expect(orm.em.begin).toHaveBeenCalledTimes(1)
+
+    await sut.disconnect()
+  })
+  it('should commit cals MikroOrm.commit', async () => {
+    const sut = PgConnection.getInstance(orm)
+    await sut.connect()
+    await sut.openTransaction()
+    await sut.commit()
+
+    expect(orm.em.commit).toHaveBeenCalledWith()
+    expect(orm.em.commit).toHaveBeenCalledTimes(1)
 
     await sut.disconnect()
   })
