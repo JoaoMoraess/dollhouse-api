@@ -110,4 +110,15 @@ describe('Connection', () => {
 
     await sut.disconnect()
   })
+  it('should rollback cals MikroOrm.rollback', async () => {
+    const sut = PgConnection.getInstance(orm)
+    await sut.connect()
+    await sut.openTransaction()
+    await sut.roolback()
+
+    expect(orm.em.rollback).toHaveBeenCalledWith()
+    expect(orm.em.rollback).toHaveBeenCalledTimes(1)
+
+    await sut.disconnect()
+  })
 })
