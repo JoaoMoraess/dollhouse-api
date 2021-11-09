@@ -30,4 +30,13 @@ describe('DbTransactionController', () => {
     expect(decoratee.perform).toHaveBeenCalledWith({ any: 'any' })
     expect(decoratee.perform).toHaveBeenCalledTimes(1)
   })
+  it('should rethrow and call db.rollback if decoratee.perform fails', async () => {
+    decoratee.perform.mockRejectedValueOnce(new Error('Aplication Error'))
+
+    const promise = sut.perform({ any: 'any' })
+
+    await expect(promise).rejects.toThrow(new Error('Aplication Error'))
+    expect(db.roolback).toHaveBeenCalledWith()
+    expect(db.roolback).toHaveBeenCalledTimes(1)
+  })
 })
