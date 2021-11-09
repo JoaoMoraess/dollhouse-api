@@ -18,8 +18,6 @@ export class DbTransactionController extends Controller {
     } catch (error) {
       await this.db.roolback()
       throw error
-    } finally {
-      await this.db.closeTransaction()
     }
   }
 }
