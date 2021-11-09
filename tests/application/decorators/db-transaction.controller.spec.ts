@@ -39,4 +39,10 @@ describe('DbTransactionController', () => {
     expect(db.roolback).toHaveBeenCalledWith()
     expect(db.roolback).toHaveBeenCalledTimes(1)
   })
+  it('should call db.commit if decoratee.perform succeds', async () => {
+    await sut.perform({ any: 'any' })
+
+    expect(db.commit).toHaveBeenCalledWith()
+    expect(db.commit).toHaveBeenCalledTimes(1)
+  })
 })
