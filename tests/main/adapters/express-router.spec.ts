@@ -40,4 +40,12 @@ describe('ExpressRouteAdapter', () => {
     expect(controllerStub.handle).toHaveBeenCalledWith({})
     expect(controllerStub.handle).toHaveBeenCalledTimes(1)
   })
+  it('should respond with 200 and valid data', async () => {
+    await sut(req, res, next)
+
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.status).toHaveBeenCalledTimes(1)
+    expect(res.json).toHaveBeenCalledWith({ anyData: 'any_data' })
+    expect(res.json).toHaveBeenCalledTimes(1)
+  })
 })
