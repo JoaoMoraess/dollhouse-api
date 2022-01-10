@@ -33,4 +33,11 @@ describe('ExpressRouteAdapter', () => {
     expect(controllerStub.handle).toHaveBeenCalledWith({ anyBody: 'any_data' })
     expect(controllerStub.handle).toHaveBeenCalledTimes(1)
   })
+  it('should call handle with empty request', async () => {
+    const req = getMockReq()
+    await sut(req, res, next)
+
+    expect(controllerStub.handle).toHaveBeenCalledWith({})
+    expect(controllerStub.handle).toHaveBeenCalledTimes(1)
+  })
 })
