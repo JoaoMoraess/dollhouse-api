@@ -57,6 +57,7 @@ export const setupEffectPurchase: SetupEffectPurchase = (
       securityCode: input.cardSecurityCode
     }
   })
+
   if (paymentResponse.message === 'SUCESSO') {
     await ordersRepo.save({
       pagSeguroId: id,

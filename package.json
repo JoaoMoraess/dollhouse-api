@@ -54,6 +54,7 @@
     ]
   },
   "devDependencies": {
+    "@jest-mock/express": "^1.4.5",
     "@mikro-orm/cli": "^4.5.9",
     "@mikro-orm/reflection": "^4.5.9",
     "@types/cors": "^2.8.12",
