@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { ChargePurchase } from '@/domain/contracts/gateways'
 import { HttpPostClient } from '.'
 
@@ -10,7 +11,6 @@ export class PagSeguroApi implements ChargePurchase {
   ) {}
 
   async charge ({ ammoutInCents, card }: ChargePurchase.Input): Promise<ChargePurchase.Output> {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     const { payment_response, id } = await this.httpClient.post({
       data: {
         amount: {
