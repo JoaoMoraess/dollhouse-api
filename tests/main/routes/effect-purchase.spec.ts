@@ -9,7 +9,7 @@ import { AsyncLocalStorage } from 'async_hooks'
 import { Order } from '@/infra/repos/postgres/entities/Order'
 import { OrderProduct } from '@/infra/repos/postgres/entities/OrderProduct'
 
-describe('Product routes', () => {
+describe('EffectPurchase route', () => {
   const storage = new AsyncLocalStorage<EntityManager>()
   let ormStub: MikroORM<IDatabaseDriver<Connection>>
 
@@ -34,8 +34,8 @@ describe('Product routes', () => {
     backup.restore()
   })
 
-  describe('GET /products', () => {
-    it('should return products on success', async () => {
+  describe('POST /effect-purchase', () => {
+    it('should return 204 on success', async () => {
       const fakeProduct = pgProductRepo.create({
         id: 'any_fake_id',
         imageUrl: 'any_fake_image',
@@ -45,12 +45,20 @@ describe('Product routes', () => {
       })
       await pgProductRepo.persistAndFlush(fakeProduct)
 
-      const { statusCode, body } = await request(configApp({ orm: ormStub, storage }))
-        .get('/api/products')
-        .send({ limit: 2, offset: 0 })
+      const { statusCode } = await request(configApp({ orm: ormStub, storage }))
+        .post('/api/effect-purchase')
+        .send({
+          localProducts: { [`${fakeProduct.id}`]: 2 },
+          cep: '12312313',
+          cardBrand: 'VISA',
+          cardNumber: '4111111111111111',
+          cardExpirationMoth: '12',
+          cardExpirationYear: '2030',
+          cardSecurityCode: '123',
+          cardHolderName: 'nome teste'
+        })
 
-      expect(statusCode).toBe(200)
-      expect(body).toEqual({ products: [fakeProduct] })
+      expect(statusCode).toBe(204)
     })
   })
 })
