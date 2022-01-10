@@ -16,6 +16,7 @@ describe('Product routes', () => {
   let connection: PgConnection
   let pgProductRepo: EntityRepository<Product>
   let backup: IBackup
+  let fakeProduct: Product
 
   beforeAll(async () => {
     const { db, orm } = await makeFakeDb([Product, Order, OrderProduct])
@@ -31,39 +32,28 @@ describe('Product routes', () => {
   })
 
   beforeEach(() => {
+    fakeProduct = pgProductRepo.create({
+      id: 'any_fake_id',
+      imageUrl: 'any_fake_image',
+      name: 'any_product_name',
+      price: 1290,
+      stock: 99
+    })
     backup.restore()
   })
 
   describe('POST /cart/info', () => {
     it('should return the corredt cart info', async () => {
-      const fakeProduct = pgProductRepo.create({
-        id: 'any_fake_id',
-        imageUrl: 'any_fake_image',
-        name: 'any_product_name',
-        price: 1290,
-        stock: 99
-      })
       await pgProductRepo.persistAndFlush(fakeProduct)
       const quantity = 3
 
       const { statusCode, body } = await request(configApp({ orm: ormStub, storage }))
         .post('/api/cart/info')
-        .send({
-          localProducts: {
-            any_fake_id: quantity
-          }
-        })
+        .send({ localProducts: { any_fake_id: quantity } })
 
       expect(statusCode).toBe(200)
       expect(body).toEqual({
-        products: [{
-          id: fakeProduct.id,
-          imageUrl: fakeProduct.imageUrl,
-          name: fakeProduct.name,
-          price: fakeProduct.price,
-          quantity: quantity,
-          stock: fakeProduct.stock
-        }],
+        products: [{ ...fakeProduct, quantity }],
         subTotal: fakeProduct.price * quantity
       })
     })
