@@ -34,8 +34,8 @@ describe('Product routes', () => {
     backup.restore()
   })
 
-  describe('GET /products', () => {
-    it('should return products on success', async () => {
+  describe('POST /cart/info', () => {
+    it('should return the corredt cart info', async () => {
       const fakeProduct = pgProductRepo.create({
         id: 'any_fake_id',
         imageUrl: 'any_fake_image',
@@ -44,16 +44,28 @@ describe('Product routes', () => {
         stock: 99
       })
       await pgProductRepo.persistAndFlush(fakeProduct)
+      const quantity = 3
 
       const { statusCode, body } = await request(configApp({ orm: ormStub, storage }))
-        .get('/api/products')
+        .post('/api/cart/info')
         .send({
-          limit: 2,
-          offset: 0
+          localProducts: {
+            any_fake_id: quantity
+          }
         })
 
       expect(statusCode).toBe(200)
-      expect(body).toEqual({ products: [fakeProduct] })
+      expect(body).toEqual({
+        products: [{
+          id: fakeProduct.id,
+          imageUrl: fakeProduct.imageUrl,
+          name: fakeProduct.name,
+          price: fakeProduct.price,
+          quantity: quantity,
+          stock: fakeProduct.stock
+        }],
+        subTotal: fakeProduct.price * quantity
+      })
     })
   })
 })
