@@ -2,17 +2,27 @@ import { Controller } from '@/application/controllers'
 import { HttpResponse } from '@/application/helpers'
 import { Validator, ValidationBuilder, RequiredString } from '@/application/validation'
 
+type HttpRequest = {email: string, password: string}
+
+type Authentication = (input: { email: string, password: string }) => Promise<{token: string, name: string}>
+
 class LoginController extends Controller {
-  override async perform (httpRequest: any): Promise<HttpResponse<any>> {
+  constructor (private readonly authentication: Authentication) {
+    super()
+  }
+
+  override async perform ({ email, password }: HttpRequest): Promise<HttpResponse<any>> {
+    void this.authentication({ email, password })
+
     return {
       data: {},
       statusCode: 200
     }
   }
 
-  override buildValidators ({ email, password }: {email: string, password: string}): Validator[] {
+  override buildValidators ({ email, password }: HttpRequest): Validator[] {
     return [
-      ...ValidationBuilder.of({ fieldValue: email, fieldName: 'email' })
+      ...ValidationBuilder.of({ fieldValue: email, fieldName: 'email' })// TODO criar validador de email
         .required()
         .build(),
       ...ValidationBuilder.of({ fieldValue: password, fieldName: 'password' })
@@ -24,15 +34,17 @@ class LoginController extends Controller {
 
 describe('LoginController', () => {
   let sut: LoginController
+  let authentication: jest.Mock
   let email: string
   let password: string
 
-  beforeEach(() => {
-    sut = new LoginController()
-  })
   beforeAll(() => {
+    authentication = jest.fn().mockResolvedValue({ token: 'any_token', name: 'any_name' })
     email = 'any_email@gmail.com'
     password = 'any_password123'
+  })
+  beforeEach(() => {
+    sut = new LoginController(authentication)
   })
 
   it('should extend Controller', async () => {
@@ -46,5 +58,11 @@ describe('LoginController', () => {
       new RequiredString(email, 'email'),
       new RequiredString(password, 'password')
     ])
+  })
+  it('should call authentication with correct input', async () => {
+    await sut.handle({ email, password })
+
+    expect(authentication).toHaveBeenCalledWith({ email, password })
+    expect(authentication).toHaveBeenCalledTimes(1)
   })
 })
