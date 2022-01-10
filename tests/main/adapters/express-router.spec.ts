@@ -72,4 +72,16 @@ describe('ExpressRouteAdapter', () => {
     expect(res.json).toHaveBeenCalledWith({ error: 'any_error_message' })
     expect(res.json).toHaveBeenCalledTimes(1)
   })
+  it('should return 500 and valid Error', async () => {
+    controllerStub.handle.mockResolvedValueOnce({
+      statusCode: 500,
+      data: new Error('any_error_message')
+    })
+    await sut(req, res, next)
+
+    expect(res.status).toHaveBeenCalledWith(500)
+    expect(res.status).toHaveBeenCalledTimes(1)
+    expect(res.json).toHaveBeenCalledWith({ error: 'any_error_message' })
+    expect(res.json).toHaveBeenCalledTimes(1)
+  })
 })
