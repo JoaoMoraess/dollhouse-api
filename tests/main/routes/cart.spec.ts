@@ -16,7 +16,6 @@ describe('Product routes', () => {
   let connection: PgConnection
   let pgProductRepo: EntityRepository<Product>
   let backup: IBackup
-  let fakeProduct: Product
 
   beforeAll(async () => {
     const { db, orm } = await makeFakeDb([Product, Order, OrderProduct])
@@ -32,29 +31,54 @@ describe('Product routes', () => {
   })
 
   beforeEach(() => {
-    fakeProduct = pgProductRepo.create({
-      id: 'any_fake_id',
-      imageUrl: 'any_fake_image',
-      name: 'any_product_name',
-      price: 1290,
-      stock: 99
-    })
     backup.restore()
   })
 
   describe('POST /cart/info', () => {
-    it('should return the corredt cart info', async () => {
-      await pgProductRepo.persistAndFlush(fakeProduct)
+    it('should return the correct cart info', async () => {
+      const productId = 'any_fake_id'
+      const fakeProduct = { id: productId, imageUrl: 'any_image', name: 'any_name', price: 1290, stock: 99 }
+      await pgProductRepo.persistAndFlush(pgProductRepo.create(fakeProduct))
       const quantity = 3
 
       const { statusCode, body } = await request(configApp({ orm: ormStub, storage }))
         .post('/api/cart/info')
-        .send({ localProducts: { any_fake_id: quantity } })
+        .send({ localProducts: { [`${productId}`]: quantity } })
 
       expect(statusCode).toBe(200)
       expect(body).toEqual({
         products: [{ ...fakeProduct, quantity }],
         subTotal: fakeProduct.price * quantity
+      })
+    })
+
+    it('should return 400 if product is not in stock', async () => {
+      const productId = 'other_fake_id'
+      const fakeProduct = { id: productId, imageUrl: 'any_image', name: 'any_name', price: 1290, stock: 1 }
+      await pgProductRepo.persistAndFlush(pgProductRepo.create(fakeProduct))
+      const quantity = 3
+
+      const { statusCode, body } = await request(configApp({ orm: ormStub, storage }))
+        .post('/api/cart/info')
+        .send({ localProducts: { [`${productId}`]: quantity } })
+
+      expect(statusCode).toBe(400)
+      expect(body).toEqual({
+        error: `Restam apenas 1 ${fakeProduct.name} em estoque!`
+      })
+    })
+
+    it('should return 400 if product is not valid', async () => {
+      const productId = 'invalid_fake_id'
+      const quantity = 3
+
+      const { statusCode, body } = await request(configApp({ orm: ormStub, storage }))
+        .post('/api/cart/info')
+        .send({ localProducts: { [`${productId}`]: quantity } })
+
+      expect(statusCode).toBe(400)
+      expect(body).toEqual({
+        error: 'Carrinho invalido!'
       })
     })
   })
