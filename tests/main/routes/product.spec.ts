@@ -16,6 +16,7 @@ describe('Product routes', () => {
   let connection: PgConnection
   let pgProductRepo: EntityRepository<Product>
   let backup: IBackup
+  let fakeProduct: Product
 
   beforeAll(async () => {
     const { db, orm } = await makeFakeDb([Product, Order, OrderProduct])
@@ -31,26 +32,23 @@ describe('Product routes', () => {
   })
 
   beforeEach(() => {
+    fakeProduct = pgProductRepo.create({
+      id: 'any_fake_id',
+      imageUrl: 'any_fake_image',
+      name: 'any_product_name',
+      price: 1290,
+      stock: 99
+    })
     backup.restore()
   })
 
   describe('GET /products', () => {
     it('should return products on success', async () => {
-      const fakeProduct = pgProductRepo.create({
-        id: 'any_fake_id',
-        imageUrl: 'any_fake_image',
-        name: 'any_product_name',
-        price: 1290,
-        stock: 99
-      })
       await pgProductRepo.persistAndFlush(fakeProduct)
 
       const { statusCode, body } = await request(configApp({ orm: ormStub, storage }))
         .get('/api/products')
-        .send({
-          limit: 2,
-          offset: 0
-        })
+        .send({ limit: 2, offset: 0 })
 
       expect(statusCode).toBe(200)
       expect(body).toEqual({ products: [fakeProduct] })
