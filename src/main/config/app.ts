@@ -9,6 +9,7 @@ const configApp = (ormProps: { orm: MikroORM, storage: AsyncLocalStorage<EntityM
   const app = express()
 
   configOrmStorage(app, ormProps.orm, ormProps.storage)
+
   configMiddlewares(app)
   configRoutes(app)
 
