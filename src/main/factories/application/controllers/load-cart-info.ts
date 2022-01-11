@@ -1,6 +1,6 @@
 import { LoadCartInfoController } from '@/application/controllers'
-import { makeLoadCartInfo } from '@/main/factories/domain/use-cases'
+import { makeLoadCartInfo, makeCheckProductsIsValid } from '@/main/factories/domain/use-cases'
 
 export const makeLoadCartInfoController = (): LoadCartInfoController => {
-  return new LoadCartInfoController(makeLoadCartInfo())
+  return new LoadCartInfoController(makeCheckProductsIsValid(), makeLoadCartInfo())
 }
