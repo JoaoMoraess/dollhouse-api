@@ -5,13 +5,17 @@ import { Validator, ValidationBuilder, RequiredString } from '@/application/vali
 type HttpRequest = {email: string, password: string}
 
 type Authentication = (input: { email: string, password: string }) => Promise<{token: string, name: string}>
+type CheckUserExists = (input: { email: string }) => Promise<boolean>
 
 class LoginController extends Controller {
-  constructor (private readonly authentication: Authentication) {
-    super()
-  }
+  constructor (
+    private readonly checkUserExists: CheckUserExists,
+    private readonly authentication: Authentication
+  ) { super() }
 
   override async perform ({ email, password }: HttpRequest): Promise<HttpResponse<any>> {
+    await this.checkUserExists({ email })
+
     const { name, token } = await this.authentication({ email, password })
 
     return ok({ name, token })
@@ -32,16 +36,18 @@ class LoginController extends Controller {
 describe('LoginController', () => {
   let sut: LoginController
   let authentication: jest.Mock
+  let checkUserExists: jest.Mock
   let email: string
   let password: string
 
   beforeAll(() => {
+    checkUserExists = jest.fn().mockResolvedValue(true)
     authentication = jest.fn().mockResolvedValue({ token: 'any_token', name: 'any_name' })
     email = 'any_email@gmail.com'
     password = 'any_password123'
   })
   beforeEach(() => {
-    sut = new LoginController(authentication)
+    sut = new LoginController(checkUserExists, authentication)
   })
 
   it('should extend Controller', async () => {
@@ -57,6 +63,13 @@ describe('LoginController', () => {
     ])
   })
 
+  it('should call checkUserExists with correct input', async () => {
+    await sut.handle({ email, password })
+
+    expect(checkUserExists).toHaveBeenCalledWith({ email })
+    expect(checkUserExists).toHaveBeenCalledTimes(1)
+  })
+
   it('should call authentication with correct input', async () => {
     await sut.handle({ email, password })
 
@@ -64,7 +77,7 @@ describe('LoginController', () => {
     expect(authentication).toHaveBeenCalledTimes(1)
   })
 
-  it('should return 200 and correct data on cussess', async () => {
+  it('should return 200 and correct data on success', async () => {
     const httpResponse = await sut.handle({ email, password })
 
     expect(httpResponse).toEqual(ok({ token: 'any_token', name: 'any_name' }))
