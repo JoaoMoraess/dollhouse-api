@@ -1,6 +1,5 @@
 import { mock, MockProxy } from 'jest-mock-extended'
 import { LoadProductsByIds } from '@/domain/contracts/repos'
-import { InvalidCartError, NoLongerInStock } from '@/domain/entities/errors'
 import { LocalProducts } from '@/domain/entities'
 import { LoadCartInfo, setupLoadCartInfo } from '@/domain/use-cases'
 
@@ -39,44 +38,6 @@ describe('LoadCartInfo', () => {
 
     expect(productsRepo.loadByIds).toHaveBeenCalledWith(['any_id', 'other_id'])
     expect(productsRepo.loadByIds).toHaveBeenCalledTimes(1)
-  })
-
-  it('should throw if cart is invalid', async () => {
-    localProducts = {
-      any_id: 1,
-      other_id: 2,
-      invalid_id: 99
-    }
-    const promise = sut({ localProducts })
-
-    await expect(promise).rejects.toThrow(new InvalidCartError())
-  })
-
-  it('should return NoLongerInStock if stockManager return a object', async () => {
-    localProducts = {
-      any_id: 4,
-      other_id: 2
-    }
-    const promise = sut({ localProducts })
-    await expect(promise).rejects.toThrow(new NoLongerInStock('any_name', 2))
-  })
-
-  it('should return the first product that is out of stock', async () => {
-    localProducts = {
-      any_id: 4,
-      other_id: 99
-    }
-    const promise = sut({ localProducts })
-    await expect(promise).rejects.toThrow(new NoLongerInStock('any_name', 2))
-  })
-  it('should return the first error if find', async () => {
-    localProducts = {
-      any_id: 4,
-      other_id: 99,
-      invalid_id: 999
-    }
-    const promise = sut({ localProducts })
-    await expect(promise).rejects.toThrow(new InvalidCartError())
   })
 
   it('should rethrow productsRepo throw', async () => {

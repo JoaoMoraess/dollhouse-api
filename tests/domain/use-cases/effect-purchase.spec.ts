@@ -1,7 +1,6 @@
 import { mock, MockProxy } from 'jest-mock-extended'
 import { ChargePurchase, DeliVeryCalculator } from '@/domain/contracts/gateways'
 import { LoadProductsByIds, SaveOrder } from '@/domain/contracts/repos'
-import { InvalidCartError } from '@/domain/entities/errors'
 import { Input, EffectPurchase, setupEffectPurchase } from '@/domain/use-cases'
 
 describe('EffectPurchase', () => {
@@ -143,14 +142,5 @@ describe('EffectPurchase', () => {
     const promise = sut(input)
 
     await expect(promise).rejects.toThrow(new Error('chargePurchase_error'))
-  })
-
-  it('should throw if invalid products are provided', async () => {
-    input.localProducts = {
-      invalid_id: 1
-    }
-    const promise = sut(input)
-
-    await expect(promise).rejects.toThrow(new InvalidCartError())
   })
 })

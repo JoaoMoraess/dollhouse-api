@@ -1,5 +1,4 @@
 import { LocalProducts, Product, ProductStockManager } from '@/domain/entities'
-import { NoLongerInStock } from '@/domain/entities/errors'
 
 describe('ProductStockManager', () => {
   let localProducts: LocalProducts
@@ -37,13 +36,7 @@ describe('ProductStockManager', () => {
 
     expect(sut2.outOfStockProducts).toEqual({ name: 'other_name', inStock: 3 })
   })
-  it('should return NoLongerInStockError if quantity is bigger than stock', () => {
-    localProducts = { any_id: 2, other_id: 2 }
-    const sut = new ProductStockManager(localProducts, dbProducts)
 
-    const error = sut.validate()
-    expect(error).toEqual(new NoLongerInStock('any_name', 1))
-  })
   it('should not return a error if quantity is smaller than stock', () => {
     localProducts = { any_id: 1, other_id: 2 }
     const sut = new ProductStockManager(localProducts, dbProducts)

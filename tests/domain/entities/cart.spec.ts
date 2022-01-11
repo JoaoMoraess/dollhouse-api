@@ -1,5 +1,4 @@
 import { CartManager, LocalProducts, Product } from '@/domain/entities'
-import { InvalidCartError } from '@/domain/entities/errors'
 
 describe('CartManager', () => {
   let localProducts: LocalProducts
@@ -59,17 +58,5 @@ describe('CartManager', () => {
     const sut = new CartManager(localProducts, dbProducts)
     const error = sut.validate()
     expect(error).toBeUndefined()
-  })
-  it('should return a error localProduct id is invalid', () => {
-    dbProducts = [{
-      id: 'any_id',
-      imageUrl: 'any_image_url',
-      name: 'any_name',
-      price: 12585,
-      stock: 1
-    }]
-    const sut = new CartManager(localProducts, dbProducts)
-    const error = sut.validate()
-    expect(error).toEqual(new InvalidCartError())
   })
 })

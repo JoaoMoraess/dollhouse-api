@@ -1,4 +1,3 @@
-import { NoLongerInStock } from './errors'
 
 export type Product = {
   id: string
@@ -29,6 +28,6 @@ export class ProductStockManager {
   }
 
   validate (): Error | undefined {
-    if (this.outOfStockProducts !== undefined) return new NoLongerInStock(this.outOfStockProducts.name, this.outOfStockProducts.inStock)
+    if (this.outOfStockProducts !== undefined) return new Error()
   }
 }
