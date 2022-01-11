@@ -1,6 +1,7 @@
 import { Controller } from '@/application/controllers'
-import { HttpResponse, ok } from '@/application/helpers'
+import { HttpResponse, ok, badRequest } from '@/application/helpers'
 import { Validator, ValidationBuilder, RequiredString } from '@/application/validation'
+import { UserNotExistsError } from '@/application/errors'
 
 type HttpRequest = {email: string, password: string}
 
@@ -20,10 +21,7 @@ class LoginController extends Controller {
       const { name, token } = await this.authentication({ email, password })
       return ok({ name, token })
     }
-    return {
-      data: {},
-      statusCode: 401
-    }
+    return badRequest(new UserNotExistsError())
   }
 
   override buildValidators ({ email, password }: HttpRequest): Validator[] {
@@ -94,5 +92,11 @@ describe('LoginController', () => {
     const httpResponse = await sut.handle({ email, password })
 
     expect(httpResponse).toEqual(ok({ token: 'any_token', name: 'any_name' }))
+  })
+  it('should return 401 and UserNotExitsError if checkUserExists return false', async () => {
+    checkUserExists.mockResolvedValueOnce(false)
+    const httpResponse = await sut.handle({ email, password })
+
+    expect(httpResponse).toEqual(badRequest(new UserNotExistsError()))
   })
 })
