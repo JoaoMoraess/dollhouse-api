@@ -14,11 +14,16 @@ class LoginController extends Controller {
   ) { super() }
 
   override async perform ({ email, password }: HttpRequest): Promise<HttpResponse<any>> {
-    await this.checkUserExists({ email })
+    const userExists = await this.checkUserExists({ email })
 
-    const { name, token } = await this.authentication({ email, password })
-
-    return ok({ name, token })
+    if (userExists) {
+      const { name, token } = await this.authentication({ email, password })
+      return ok({ name, token })
+    }
+    return {
+      data: {},
+      statusCode: 401
+    }
   }
 
   override buildValidators ({ email, password }: HttpRequest): Validator[] {
@@ -68,6 +73,14 @@ describe('LoginController', () => {
 
     expect(checkUserExists).toHaveBeenCalledWith({ email })
     expect(checkUserExists).toHaveBeenCalledTimes(1)
+  })
+
+  it('should not cal authentication if checkUserExists returns false', async () => {
+    checkUserExists.mockResolvedValueOnce(false)
+    await sut.handle({ email, password })
+
+    expect(authentication).not.toHaveBeenCalled()
+    expect(authentication).toHaveBeenCalledTimes(0)
   })
 
   it('should call authentication with correct input', async () => {
