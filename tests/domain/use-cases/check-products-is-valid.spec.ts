@@ -1,4 +1,4 @@
-import { InvalidCartError } from '@/application/errors'
+import { InvalidCartError, NoLongerInStock } from '@/application/errors'
 import { mock, MockProxy } from 'jest-mock-extended'
 import { LoadProductsByIds } from '@/domain/contracts/repos'
 import { LocalProducts } from '../entities'
@@ -10,9 +10,11 @@ type SetCheckProductsIsValid = (productsRepo: LoadProductsByIds) => CheckProduct
 const setCheckProductIsValid: SetCheckProductsIsValid = (productsRepo) => async ({ localProducts }) => {
   const ids = Object.keys(localProducts)
   const products = await productsRepo.loadByIds(ids)
-
   if (products.length !== ids.length) return new InvalidCartError()
-
+  const outOfStockProduct = products
+    .filter((product) => product.stock - localProducts[product.id] < 0)
+    .map(item => ({ name: item.name, inStock: item.stock }))[0]
+  if (outOfStockProduct !== undefined) return new NoLongerInStock(outOfStockProduct.name, outOfStockProduct.inStock)
   return null
 }
 
@@ -54,9 +56,15 @@ describe('CheckProductsIsValid', () => {
     expect(productsRepo.loadByIds).toHaveBeenCalledWith(Object.keys(localProducts))
   })
 
-  it('should return invalid cart if localProducts have invalid product id', async () => {
+  it('should return InvaliCartError if localProducts have invalid product id', async () => {
     const error = await sut({ localProducts: { invalid_id: 2 } })
 
     expect(error).toEqual(new InvalidCartError())
+  })
+
+  it('should return NoLongerInStockError if quantity of localProducts is bigger from products stock', async () => {
+    const error = await sut({ localProducts: { ...localProducts, any_id: 4 } })
+
+    expect(error).toEqual(new NoLongerInStock('any_name', 3))
   })
 })
