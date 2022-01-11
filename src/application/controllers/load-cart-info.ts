@@ -2,12 +2,10 @@ import { LocalProducts, ProductCartItem } from '@/domain/entities'
 import { Controller } from '.'
 import { HttpResponse, badRequest, ok } from '@/application/helpers'
 import { ValidationBuilder, Validator } from '@/application/validation'
-import { LoadCartInfo } from '@/domain/use-cases'
+import { CheckProductsIsValid, LoadCartInfo } from '@/domain/use-cases'
 
 type HttpRequest = { localProducts: LocalProducts }
 type Model = { products: ProductCartItem[], subTotal: number }
-
-export type CheckProductsIsValid = (input: { localProducts: LocalProducts }) => Promise<Error | null>
 
 export class LoadCartInfoController extends Controller {
   constructor (

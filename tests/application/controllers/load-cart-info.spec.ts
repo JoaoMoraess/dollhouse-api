@@ -1,7 +1,7 @@
 import { Controller, LoadCartInfoController } from '@/application/controllers'
 import { Required } from '@/application/validation'
 import { LocalProducts } from '@/domain/entities'
-import { InvalidCartError, NoLongerInStock } from '@/application/errors'
+import { InvalidCartError, NoLongerInStock } from '@/domain/errors'
 import { badRequest } from '@/application/helpers'
 
 describe('LoadCartInfoController', () => {

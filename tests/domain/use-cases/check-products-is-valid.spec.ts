@@ -1,22 +1,8 @@
-import { InvalidCartError, NoLongerInStock } from '@/application/errors'
 import { mock, MockProxy } from 'jest-mock-extended'
 import { LoadProductsByIds } from '@/domain/contracts/repos'
-import { LocalProducts } from '../entities'
-
-type CheckProductsIsValid = (input: { localProducts: LocalProducts }) => Promise<Error | null>
-
-type SetCheckProductsIsValid = (productsRepo: LoadProductsByIds) => CheckProductsIsValid
-
-const setCheckProductIsValid: SetCheckProductsIsValid = (productsRepo) => async ({ localProducts }) => {
-  const ids = Object.keys(localProducts)
-  const products = await productsRepo.loadByIds(ids)
-  if (products.length !== ids.length) return new InvalidCartError()
-  const outOfStockProduct = products
-    .filter((product) => product.stock - localProducts[product.id] < 0)
-    .map(item => ({ name: item.name, inStock: item.stock }))[0]
-  if (outOfStockProduct !== undefined) return new NoLongerInStock(outOfStockProduct.name, outOfStockProduct.inStock)
-  return null
-}
+import { LocalProducts } from '@/domain/entities'
+import { CheckProductsIsValid, setCheckProductIsValid } from '@/domain/use-cases'
+import { InvalidCartError, NoLongerInStock } from '@/domain/errors'
 
 describe('CheckProductsIsValid', () => {
   let sut: CheckProductsIsValid

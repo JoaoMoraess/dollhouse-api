@@ -1,5 +1,5 @@
 import { LoadProductsByIds } from '@/domain/contracts/repos'
-import { CartManager, LocalProducts, ProductCartItem, ProductStockManager } from '@/domain/entities'
+import { LocalProducts, ProductCartItem } from '@/domain/entities'
 
 type Setup = (productsRepo: LoadProductsByIds) => LoadCartInfo
 type Input = { localProducts: LocalProducts }
@@ -11,11 +11,11 @@ export const setupLoadCartInfo: Setup = (productsRepo) => async ({ localProducts
   const ids = Object.keys(localProducts)
   const dbProducts = await productsRepo.loadByIds(ids)
 
-  const cartManager = new CartManager(localProducts, dbProducts)
-  const productStockManager = new ProductStockManager(localProducts, dbProducts)
+  const products = dbProducts.map(product => ({
+    ...product,
+    quantity: localProducts[product.id]
+  }))
+  const subTotal = products.reduce((acc, product) => acc + product.price * product.quantity, 0)
 
-  const error = cartManager.validate() ?? productStockManager.validate()
-  if (error !== undefined) throw error
-
-  return { products: cartManager.products, subTotal: cartManager.subTotal }
+  return { products, subTotal }
 }
