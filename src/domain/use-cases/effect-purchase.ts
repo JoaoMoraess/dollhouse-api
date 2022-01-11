@@ -1,6 +1,7 @@
 import { ChargePurchase, DeliVeryCalculator } from '@/domain/contracts/gateways'
-import { LoadProductsByIds, SaveOrder } from '@/domain/contracts/repos'
-import { CartManager, LocalProducts, ProductStockManager } from '@/domain/entities'
+import { SaveOrder } from '@/domain/contracts/repos'
+import { LocalProducts } from '@/domain/entities'
+import { LoadPurchaseInfo } from '.'
 
 export type Input = {
   localProducts: LocalProducts
@@ -16,32 +17,25 @@ export type Input = {
 export type EffectPurchase = (input: Input) => Promise<void>
 
 type SetupEffectPurchase = (
-  productsRepo: LoadProductsByIds,
+  loadPurchaseInfo: LoadPurchaseInfo,
   ordersRepo: SaveOrder,
   deliveryCalculator: DeliVeryCalculator,
   chargePurchase: ChargePurchase
 ) => EffectPurchase
 
 export const setupEffectPurchase: SetupEffectPurchase = (
-  productsRepo,
+  loadPurchaseInfo,
   ordersRepo,
   deliveryCalculator,
   chargePurchase
 ) => async input => {
-  const productsIds = Object.keys(input.localProducts)
-  const products = await productsRepo.loadByIds(productsIds)
-
-  const cartManager = new CartManager(input.localProducts, products)
-  const stockManager = new ProductStockManager(input.localProducts, products)
-
-  const error = cartManager.validate() ?? stockManager.validate()
-  if (error !== undefined) throw error
+  const { products, subTotal } = await loadPurchaseInfo({ localProducts: input.localProducts })
+  console.log(products[0].stock)// TODO remover log e adionar productsRepo.updateProductsStock
 
   const orderProducts: Array<{productId: string, quantity: number}> = Object
     .keys(input.localProducts)
     .map((key) => ({ productId: key, quantity: input.localProducts[key] }))
 
-  const subTotal = cartManager.subTotal
   const deliveryCost = await deliveryCalculator.calc({ cepWithoutIffen: input.cep, declaredValue: 0 })
 
   const totalInCents = subTotal + deliveryCost

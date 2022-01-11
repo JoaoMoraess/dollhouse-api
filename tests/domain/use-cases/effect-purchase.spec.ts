@@ -1,18 +1,37 @@
 import { mock, MockProxy } from 'jest-mock-extended'
 import { ChargePurchase, DeliVeryCalculator } from '@/domain/contracts/gateways'
-import { LoadProductsByIds, SaveOrder } from '@/domain/contracts/repos'
+import { SaveOrder } from '@/domain/contracts/repos'
 import { Input, EffectPurchase, setupEffectPurchase } from '@/domain/use-cases'
 
 describe('EffectPurchase', () => {
   let sut: EffectPurchase
-  let productsRepo: MockProxy<LoadProductsByIds>
   let ordersRepo: MockProxy<SaveOrder>
   let chargePurchase: MockProxy<ChargePurchase>
   let deliveryCalculator: MockProxy<DeliVeryCalculator>
+  let loadPurchaseInfo: jest.Mock
   let deliveryPrice: number
   let input: Input
 
   beforeAll(() => {
+    loadPurchaseInfo = jest.fn().mockResolvedValue({
+      subTotal: 2580,
+      products: [{
+        id: 'any_id',
+        name: 'any_name',
+        stock: 2,
+        price: 1290,
+        imageUrl: '',
+        quantity: 1
+      },
+      {
+        id: 'other_id',
+        name: 'other_name',
+        stock: 2,
+        price: 1290,
+        imageUrl: '',
+        quantity: 1
+      }]
+    })
     deliveryPrice = 7089
     input = {
       cardBrand: 'VISA',
@@ -27,22 +46,6 @@ describe('EffectPurchase', () => {
       cardSecurityCode: '123',
       cardHolderName: 'Joao Moraess'
     }
-
-    productsRepo = mock()
-    productsRepo.loadByIds.mockResolvedValue([{
-      id: 'any_id',
-      imageUrl: 'any_image_url',
-      name: 'any_name',
-      price: 12970,
-      stock: 3
-    },
-    {
-      id: 'other_id',
-      imageUrl: 'other_image_url',
-      name: 'other_name',
-      price: 12970,
-      stock: 3
-    }])
 
     ordersRepo = mock()
     ordersRepo.save.mockResolvedValue()
@@ -61,14 +64,7 @@ describe('EffectPurchase', () => {
     })
   })
   beforeEach(() => {
-    sut = setupEffectPurchase(productsRepo, ordersRepo, deliveryCalculator, chargePurchase)
-  })
-
-  it('should call productsRepo.loadByIds with correct input', async () => {
-    await sut(input)
-
-    expect(productsRepo.loadByIds).toHaveBeenCalledWith(Object.keys(input.localProducts))
-    expect(productsRepo.loadByIds).toHaveBeenCalledTimes(1)
+    sut = setupEffectPurchase(loadPurchaseInfo, ordersRepo, deliveryCalculator, chargePurchase)
   })
 
   it('should call deliveryCalculator.calc with correct input', async () => {
@@ -82,7 +78,7 @@ describe('EffectPurchase', () => {
     await sut(input)
 
     expect(chargePurchase.charge).toHaveBeenCalledWith({
-      ammoutInCents: 12970 + 12970 + deliveryPrice,
+      ammoutInCents: 1290 + 1290 + deliveryPrice,
       card: {
         brand: 'VISA',
         expirationMoth: input.cardExpirationMoth,
@@ -100,8 +96,8 @@ describe('EffectPurchase', () => {
 
     expect(ordersRepo.save).toHaveBeenCalledWith({
       pagSeguroId: 'any_id',
-      total: 12970 + 12970 + deliveryPrice,
-      subTotal: 12970 + 12970,
+      total: 1290 + 1290 + deliveryPrice,
+      subTotal: 1290 + 1290,
       deliveryCost: deliveryPrice,
       products: [{
         productId: 'any_id',
@@ -116,18 +112,18 @@ describe('EffectPurchase', () => {
     expect(ordersRepo.save).toHaveBeenCalledTimes(1)
   })
 
-  it('should rethrow if productsRepo throws', async () => {
-    productsRepo.loadByIds.mockRejectedValueOnce(new Error('productRepo_error'))
-    const promise = sut(input)
-
-    await expect(promise).rejects.toThrow(new Error('productRepo_error'))
-  })
-
   it('should rethrow if ordersRepo throws', async () => {
     ordersRepo.save.mockRejectedValueOnce(new Error('ordersRepo_error'))
     const promise = sut(input)
 
     await expect(promise).rejects.toThrow(new Error('ordersRepo_error'))
+  })
+
+  it('should rethrow if loadPurchaseInfo throws', async () => {
+    loadPurchaseInfo.mockRejectedValueOnce(new Error('loadPurchase_error'))
+    const promise = sut(input)
+
+    await expect(promise).rejects.toThrow(new Error('loadPurchase_error'))
   })
 
   it('should rethrow if ordersRepo throws', async () => {

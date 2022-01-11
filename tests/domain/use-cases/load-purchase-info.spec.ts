@@ -1,10 +1,10 @@
 import { mock, MockProxy } from 'jest-mock-extended'
 import { LoadProductsByIds } from '@/domain/contracts/repos'
 import { LocalProducts } from '@/domain/entities'
-import { LoadCartInfo, setupLoadCartInfo } from '@/domain/use-cases'
+import { LoadPurchaseInfo, setupLoadPurchaseInfo } from '@/domain/use-cases'
 
-describe('LoadCartInfo', () => {
-  let sut: LoadCartInfo
+describe('LoadPurchaseInfo', () => {
+  let sut: LoadPurchaseInfo
   let productsRepo: MockProxy<LoadProductsByIds>
   let localProducts: LocalProducts
 
@@ -30,7 +30,7 @@ describe('LoadCartInfo', () => {
     }])
   })
   beforeEach(() => {
-    sut = setupLoadCartInfo(productsRepo)
+    sut = setupLoadPurchaseInfo(productsRepo)
   })
 
   it('should call loadProductsByIds with correct input', async () => {

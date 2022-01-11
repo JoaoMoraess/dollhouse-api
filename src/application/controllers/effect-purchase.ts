@@ -1,7 +1,7 @@
 import { Controller } from '.'
-import { noContent, HttpResponse } from '@/application/helpers'
+import { noContent, HttpResponse, badRequest } from '@/application/helpers'
 import { ValidationBuilder, Validator } from '@/application/validation'
-import { EffectPurchase } from '@/domain/use-cases'
+import { CheckProductsIsValid, EffectPurchase } from '@/domain/use-cases'
 import { LocalProducts } from '@/domain/entities'
 
 type HttpRequest = {
@@ -17,11 +17,14 @@ type HttpRequest = {
 
 export class EffectPurchaseController extends Controller {
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-  constructor (private readonly makePurchase: EffectPurchase) {
-    super()
-  }
+  constructor (
+    private readonly checkProductsIsValid: CheckProductsIsValid,
+    private readonly makePurchase: EffectPurchase
+  ) { super() }
 
-  override async perform (httpRequest: HttpRequest): Promise<HttpResponse<null>> {
+  override async perform (httpRequest: HttpRequest): Promise<HttpResponse<null | Error>> {
+    const error = await this.checkProductsIsValid({ localProducts: httpRequest.localProducts })
+    if (error !== null) return badRequest(error)
     await this.makePurchase(httpRequest)
     return noContent()
   }

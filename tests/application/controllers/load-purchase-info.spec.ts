@@ -1,13 +1,13 @@
-import { Controller, LoadCartInfoController } from '@/application/controllers'
+import { Controller, LoadPurchaseInfoController } from '@/application/controllers'
 import { Required } from '@/application/validation'
 import { LocalProducts } from '@/domain/entities'
 import { InvalidCartError, NoLongerInStock } from '@/domain/errors'
 import { badRequest } from '@/application/helpers'
 
-describe('LoadCartInfoController', () => {
-  let sut: LoadCartInfoController
+describe('LoadPurchaseInfoController', () => {
+  let sut: LoadPurchaseInfoController
   let localProducts: LocalProducts
-  let loadCartInfo: jest.Mock
+  let loadPurchaseInfo: jest.Mock
   let checkProductsIsValid: jest.Mock
 
   beforeAll(() => {
@@ -16,7 +16,7 @@ describe('LoadCartInfoController', () => {
     }
     checkProductsIsValid = jest.fn().mockResolvedValue(null)
 
-    loadCartInfo = jest.fn().mockResolvedValue({
+    loadPurchaseInfo = jest.fn().mockResolvedValue({
       products: [{
         id: 'any_id',
         name: 'any_name',
@@ -27,7 +27,7 @@ describe('LoadCartInfoController', () => {
     })
   })
   beforeEach(() => {
-    sut = new LoadCartInfoController(checkProductsIsValid, loadCartInfo)
+    sut = new LoadPurchaseInfoController(checkProductsIsValid, loadPurchaseInfo)
   })
 
   it('should extend Controller', async () => {
@@ -42,11 +42,11 @@ describe('LoadCartInfoController', () => {
     ])
   })
 
-  it('should call loadCartInfo with correct input', async () => {
+  it('should call loadPurchaseInfo with correct input', async () => {
     await sut.handle({ localProducts })
 
-    expect(loadCartInfo).toHaveBeenCalledWith({ localProducts })
-    expect(loadCartInfo).toHaveBeenCalledTimes(1)
+    expect(loadPurchaseInfo).toHaveBeenCalledWith({ localProducts })
+    expect(loadPurchaseInfo).toHaveBeenCalledTimes(1)
   })
 
   it('should return 200 with valida data', async () => {
@@ -71,13 +71,13 @@ describe('LoadCartInfoController', () => {
     const httpResponse = await sut.handle({ localProducts })
 
     expect(httpResponse).toEqual(badRequest(new InvalidCartError()))
-    expect(loadCartInfo).not.toHaveBeenCalled()
+    expect(loadPurchaseInfo).not.toHaveBeenCalled()
   })
 
   it('should return 401 NoLongerInStock if products is out of stock', async () => {
     checkProductsIsValid.mockResolvedValueOnce(new NoLongerInStock('any_name', 2))
     const httpResponse = await sut.handle({ localProducts })
     expect(httpResponse).toEqual(badRequest(new NoLongerInStock('any_name', 2)))
-    expect(loadCartInfo).not.toHaveBeenCalled()
+    expect(loadPurchaseInfo).not.toHaveBeenCalled()
   })
 })
