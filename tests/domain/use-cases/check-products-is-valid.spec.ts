@@ -1,5 +1,6 @@
+import { InvalidCartError } from '@/application/errors'
 import { mock, MockProxy } from 'jest-mock-extended'
-import { LoadProductsByIds } from '../contracts/repos'
+import { LoadProductsByIds } from '@/domain/contracts/repos'
 import { LocalProducts } from '../entities'
 
 type CheckProductsIsValid = (input: { localProducts: LocalProducts }) => Promise<Error | null>
@@ -8,7 +9,9 @@ type SetCheckProductsIsValid = (productsRepo: LoadProductsByIds) => CheckProduct
 
 const setCheckProductIsValid: SetCheckProductsIsValid = (productsRepo) => async ({ localProducts }) => {
   const ids = Object.keys(localProducts)
-  await productsRepo.loadByIds(ids)
+  const products = await productsRepo.loadByIds(ids)
+
+  if (products.length !== ids.length) return new InvalidCartError()
 
   return null
 }
@@ -49,5 +52,11 @@ describe('CheckProductsIsValid', () => {
 
     expect(productsRepo.loadByIds).toHaveBeenCalled()
     expect(productsRepo.loadByIds).toHaveBeenCalledWith(Object.keys(localProducts))
+  })
+
+  it('should return invalid cart if localProducts have invalid product id', async () => {
+    const error = await sut({ localProducts: { invalid_id: 2 } })
+
+    expect(error).toEqual(new InvalidCartError())
   })
 })
