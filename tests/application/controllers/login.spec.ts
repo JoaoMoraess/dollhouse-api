@@ -1,5 +1,5 @@
 import { Controller } from '@/application/controllers'
-import { HttpResponse } from '@/application/helpers'
+import { HttpResponse, ok } from '@/application/helpers'
 import { Validator, ValidationBuilder, RequiredString } from '@/application/validation'
 
 type HttpRequest = {email: string, password: string}
@@ -12,12 +12,9 @@ class LoginController extends Controller {
   }
 
   override async perform ({ email, password }: HttpRequest): Promise<HttpResponse<any>> {
-    void this.authentication({ email, password })
+    const { name, token } = await this.authentication({ email, password })
 
-    return {
-      data: {},
-      statusCode: 200
-    }
+    return ok({ name, token })
   }
 
   override buildValidators ({ email, password }: HttpRequest): Validator[] {
@@ -59,10 +56,17 @@ describe('LoginController', () => {
       new RequiredString(password, 'password')
     ])
   })
+
   it('should call authentication with correct input', async () => {
     await sut.handle({ email, password })
 
     expect(authentication).toHaveBeenCalledWith({ email, password })
     expect(authentication).toHaveBeenCalledTimes(1)
+  })
+
+  it('should return 200 and correct data on cussess', async () => {
+    const httpResponse = await sut.handle({ email, password })
+
+    expect(httpResponse).toEqual(ok({ token: 'any_token', name: 'any_name' }))
   })
 })
