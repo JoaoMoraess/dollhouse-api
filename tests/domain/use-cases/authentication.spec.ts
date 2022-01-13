@@ -65,8 +65,14 @@ describe('Authentication', () => {
     expect(usersRepo.loadByEmail).toHaveBeenCalledWith({ email })
     expect(usersRepo.loadByEmail).toHaveBeenCalledTimes(1)
   })
-  it('should return null if usersRepo.loadByEmail returns undefined', async () => {
+  it('should return null if usersRepo.loadByEmail returns null', async () => {
     usersRepo.loadByEmail.mockResolvedValueOnce(null)
+    const userData = await sut({ email, password })
+
+    expect(userData).toEqual(null)
+  })
+  it('should return null if hashComparer.compare returns false', async () => {
+    hashComparer.compare.mockResolvedValueOnce(false)
     const userData = await sut({ email, password })
 
     expect(userData).toEqual(null)
