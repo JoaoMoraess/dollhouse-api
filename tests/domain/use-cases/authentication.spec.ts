@@ -26,6 +26,7 @@ export const setAuthentication: Setup = (usersRepo, hashComparer, encrypter) => 
     if (isValidUser) {
       const token = await encrypter.encrypt({ plainText: user.id })
       await usersRepo.updateToken({ id: user.id, token })
+      return { name: user.name, token }
     }
   }
 
@@ -87,5 +88,10 @@ describe('Authentication', () => {
 
     expect(usersRepo.updateToken).toHaveBeenCalledWith({ id: 'any_id', token: 'encrypted_string' })
     expect(usersRepo.updateToken).toHaveBeenCalledTimes(1)
+  })
+  it('should return the correct data on success', async () => {
+    const userData = await sut({ email, password })
+
+    expect(userData).toEqual({ name: 'any_name', token: 'encrypted_string' })
   })
 })
