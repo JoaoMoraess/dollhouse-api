@@ -5,7 +5,7 @@ interface LoadUserByEmail {
 }
 
 interface HashComparer {
-  compare: (plaintext: string, digest: string) => Promise<boolean>
+  compare: (input: {plainText: string, digest: string}) => Promise<boolean>
 }
 
 type Setup = (userRepo: LoadUserByEmail, hashComparer: HashComparer) => Authentication
@@ -15,6 +15,7 @@ export const setAuthentication: Setup = (userRepo, hashComparer) => async ({ ema
   const user = await userRepo.loadByEmail(email)
 
   if (user !== undefined && user !== null) {
+    await hashComparer.compare({ plainText: password, digest: user.password })
     console.log(user)
   }
 
@@ -33,14 +34,14 @@ describe('Authentication', () => {
     userRepo.loadByEmail.mockResolvedValue({
       id: 'any_id',
       name: 'any_name',
-      password: 'any_password'
+      password: 'any_hasshed_password'
     })
     hashComparer = mock()
     hashComparer.compare.mockResolvedValue(true)
   })
   beforeEach(() => {
     email = 'any_email@gmail.com'
-    password = 'any_password_123'
+    password = 'any_password'
     sut = setAuthentication(userRepo, hashComparer)
   })
 
@@ -55,5 +56,11 @@ describe('Authentication', () => {
     const userData = await sut({ email, password })
 
     expect(userData).toEqual(null)
+  })
+  it('should call hashComparer with correct input', async () => {
+    await sut({ email, password })
+
+    expect(hashComparer.compare).toHaveBeenCalledWith({ plainText: password, digest: 'any_hasshed_password' })
+    expect(hashComparer.compare).toHaveBeenCalledTimes(1)
   })
 })
