@@ -100,4 +100,28 @@ describe('Authentication', () => {
 
     expect(userData).toEqual({ name: 'any_name', token: 'encrypted_string' })
   })
+  it('should rethrow if usersRepo.loadByEmail throws', async () => {
+    usersRepo.loadByEmail.mockRejectedValueOnce(new Error('any_error'))
+    const userData = sut({ email, password })
+
+    await expect(userData).rejects.toThrow(new Error('any_error'))
+  })
+  it('should rethrow if hashComparer.compare throws', async () => {
+    hashComparer.compare.mockRejectedValueOnce(new Error('any_error'))
+    const userData = sut({ email, password })
+
+    await expect(userData).rejects.toThrow(new Error('any_error'))
+  })
+  it('should rethrow if encrypter.encrypt throws', async () => {
+    encrypter.encrypt.mockRejectedValueOnce(new Error('any_error'))
+    const userData = sut({ email, password })
+
+    await expect(userData).rejects.toThrow(new Error('any_error'))
+  })
+  it('should rethrow if usersRepo.updateToken throws', async () => {
+    usersRepo.updateToken.mockRejectedValueOnce(new Error('any_error'))
+    const userData = sut({ email, password })
+
+    await expect(userData).rejects.toThrow(new Error('any_error'))
+  })
 })
