@@ -1,3 +1,5 @@
 export * from './load-product-by-ids'
 export * from './load-by-offset'
 export * from './save-order'
+export * from './load-user-by-email'
+export * from './update-user-token'

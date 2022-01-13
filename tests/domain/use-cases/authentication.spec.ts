@@ -1,5 +1,7 @@
 import { mock, MockProxy } from 'jest-mock-extended'
-import { Authentication, Encrypter, HashComparer, LoadUserByEmail, setAuthentication, UpdateUserToken } from '@/domain/use-cases'
+import { Authentication, setAuthentication } from '@/domain/use-cases'
+import { LoadUserByEmail, UpdateUserToken } from '@/domain/contracts/repos'
+import { Encrypter, HashComparer } from '@/domain/contracts/cryptography'
 
 describe('Authentication', () => {
   let usersRepo: MockProxy<LoadUserByEmail & UpdateUserToken>

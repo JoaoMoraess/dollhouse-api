@@ -1,19 +1,5 @@
-
-export interface LoadUserByEmail {
-  loadByEmail: (input: {email: string}) => Promise<{id: string, name: string, password: string} | null>
-}
-
-export interface UpdateUserToken {
-  updateToken: (input: {id: string, token: string}) => Promise<void>
-}
-
-export interface HashComparer {
-  compare: (input: {plainText: string, digest: string}) => Promise<boolean>
-}
-
-export interface Encrypter {
-  encrypt: (input: {plainText: string}) => Promise<string>
-}
+import { Encrypter, HashComparer } from '@/domain/contracts/cryptography'
+import { LoadUserByEmail, UpdateUserToken } from '@/domain/contracts/repos'
 
 type Setup = (usersRepo: LoadUserByEmail & UpdateUserToken, hashComparer: HashComparer, encrypter: Encrypter) => Authentication
 export type Authentication = (input: { email: string, password: string }) => Promise<{name: string, token: string} | null>
