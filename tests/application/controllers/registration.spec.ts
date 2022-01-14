@@ -84,4 +84,11 @@ describe('RegistrationController', () => {
 
     expect(httpResponse).toEqual(ok({ name: 'any_name', token: 'any_token' }))
   })
+
+  it('should return unauthorized if registration returns null', async () => {
+    registration.mockResolvedValueOnce(null)
+    const httpResponse = await sut.handle(httpRequest)
+
+    expect(httpResponse).toEqual(unauthorized())
+  })
 })
