@@ -1,6 +1,6 @@
 import { Controller, LoginController } from '@/application/controllers'
 import { ok, unauthorized } from '@/application/helpers'
-import { RequiredString } from '@/application/validation'
+import { RequiredString, Email } from '@/application/validation'
 
 describe('LoginController', () => {
   let sut: LoginController
@@ -26,6 +26,7 @@ describe('LoginController', () => {
 
     expect(validators).toEqual([
       new RequiredString(email, 'email'),
+      new Email(email, 'email'),
       new RequiredString(password, 'password')
     ])
   })
