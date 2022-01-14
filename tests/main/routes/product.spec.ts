@@ -8,6 +8,7 @@ import { configApp } from '@/main/config/app'
 import { AsyncLocalStorage } from 'async_hooks'
 import { Order } from '@/infra/repos/postgres/entities/Order'
 import { OrderProduct } from '@/infra/repos/postgres/entities/OrderProduct'
+import { User } from '@/infra/repos/postgres/entities/User'
 
 describe('Product routes', () => {
   const storage = new AsyncLocalStorage<EntityManager>()
@@ -18,7 +19,7 @@ describe('Product routes', () => {
   let backup: IBackup
 
   beforeAll(async () => {
-    const { db, orm } = await makeFakeDb([Product, Order, OrderProduct])
+    const { db, orm } = await makeFakeDb([Product, Order, OrderProduct, User])
     connection = PgConnection.getInstance(orm)
     await connection.connect()
     backup = db.backup()

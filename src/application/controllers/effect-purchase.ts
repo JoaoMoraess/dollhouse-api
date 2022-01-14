@@ -16,14 +16,13 @@ type HttpRequest = {
 }
 
 export class EffectPurchaseController extends Controller {
-  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor (
-    private readonly ValidateProducts: ValidateProducts,
+    private readonly validateProducts: ValidateProducts,
     private readonly makePurchase: EffectPurchase
   ) { super() }
 
   override async perform (httpRequest: HttpRequest): Promise<HttpResponse<null | Error>> {
-    const error = await this.ValidateProducts({ localProducts: httpRequest.localProducts })
+    const error = await this.validateProducts({ localProducts: httpRequest.localProducts })
     if (error !== null) return badRequest(error)
     await this.makePurchase(httpRequest)
     return noContent()
