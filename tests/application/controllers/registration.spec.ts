@@ -1,6 +1,6 @@
 import { AuthenticationModel } from '@/domain/entities'
 import { Controller } from '@/application/controllers'
-import { HttpResponse, ok } from '@/application/helpers'
+import { HttpResponse, ok, unauthorized } from '@/application/helpers'
 import { Email, RequiredString, Validator, ValidationBuilder } from '@/application/validation'
 
 type HttpRequest = {
@@ -15,14 +15,18 @@ type Registration = (input: { name: string, email: string, password: string }) =
 class RegistrationController extends Controller {
   constructor (private readonly registration: Registration) { super() }
 
-  override async perform (httpRequest: HttpRequest): Promise<HttpResponse<AuthenticationModel>> {
-    return ok({
-      name: 'any_name',
-      token: 'any_token'
-    })
+  override async perform (httpRequest: HttpRequest): Promise<HttpResponse<any>> {
+    const { email, name, password } = httpRequest
+    const authenticationModel = await this.registration({ email, name, password })
+
+    if (authenticationModel !== null && authenticationModel !== undefined) {
+      return ok(authenticationModel)
+    }
+    return unauthorized()
   }
 
   override buildValidators ({ name, email, password, passwordConfirmation }: HttpRequest): Validator[] {
+    // TODO fazer o compareFieldsValidator
     return [
       ...ValidationBuilder.of({ fieldValue: name, fieldName: 'name' }).required().build(),
       ...ValidationBuilder.of({ fieldValue: email, fieldName: 'email' }).required().email().build(),
@@ -68,5 +72,11 @@ describe('RegistrationController', () => {
       new RequiredString(httpRequest.password, 'password'),
       new RequiredString(httpRequest.passwordConfirmation, 'passwordConfirmation')
     ])
+  })
+  it('should call Registration with correct input', async () => {
+    await sut.handle(httpRequest)
+
+    expect(registration).toHaveBeenCalledWith({ name: httpRequest.name, email: httpRequest.email, password: httpRequest.password })
+    expect(registration).toHaveBeenCalledTimes(1)
   })
 })
