@@ -1,7 +1,7 @@
-import { AuthenticationModel } from '@/domain/entities'
 import { Controller } from '@/application/controllers'
 import { HttpResponse, ok, unauthorized } from '@/application/helpers'
 import { Validator, ValidationBuilder } from '@/application/validation'
+import { Registration } from '@/domain/use-cases'
 
 type HttpRequest = {
   name: string
@@ -10,9 +10,7 @@ type HttpRequest = {
   passwordConfirmation: string
 }
 
-type Registration = (input: { name: string, email: string, password: string }) => Promise<AuthenticationModel | null>
-
-export class RegistrationController extends Controller {
+export class SignUpController extends Controller {
   constructor (private readonly registration: Registration) { super() }
 
   override async perform (httpRequest: HttpRequest): Promise<HttpResponse<any>> {

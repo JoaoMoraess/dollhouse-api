@@ -1,4 +1,4 @@
-import { Controller, RegistrationController } from '@/application/controllers'
+import { Controller, SignUpController } from '@/application/controllers'
 import { ok, unauthorized } from '@/application/helpers'
 import { Email, RequiredString } from '@/application/validation'
 
@@ -9,8 +9,8 @@ type HttpRequest = {
   passwordConfirmation: string
 }
 
-describe('RegistrationController', () => {
-  let sut: RegistrationController
+describe('SignUpController', () => {
+  let sut: SignUpController
   let registration: jest.Mock
   let httpRequest: HttpRequest
 
@@ -28,7 +28,7 @@ describe('RegistrationController', () => {
       password: 'any_password',
       passwordConfirmation: 'any_password'
     }
-    sut = new RegistrationController(registration)
+    sut = new SignUpController(registration)
   })
 
   it('should extend Controller', async () => {
