@@ -38,7 +38,7 @@ describe('PgUserRepository', () => {
     expect(sut).toBeInstanceOf(Repository)
   })
 
-  describe('LoadUserByEmail', () => {
+  describe('loadByEmail()', () => {
     it('should return the correct user', async () => {
       await pgUserRepo.persistAndFlush(pgUserRepo.create({
         id: userId,
@@ -55,6 +55,21 @@ describe('PgUserRepository', () => {
         name: 'any_name',
         password: 'any_password'
       })
+    })
+  })
+  describe('saveUser()', () => {
+    it('should save user correctly', async () => {
+      const { id } = await sut.save({
+        email: 'any_email@gmail.com',
+        name: 'any_name',
+        password: 'hashed_password'
+      })
+
+      const savedUser = await pgUserRepo.findOne({ email: 'any_email@gmail.com' })
+
+      expect(savedUser).toBeTruthy()
+      expect(savedUser?.id).toEqual(id)
+      expect(savedUser?.name).toEqual('any_name')
     })
   })
 })
