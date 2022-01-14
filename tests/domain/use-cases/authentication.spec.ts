@@ -7,7 +7,7 @@ import { AccessToken } from '@/domain/entities'
 describe('Authentication', () => {
   let usersRepo: MockProxy<LoadUserByEmail>
   let hashComparer: MockProxy<HashComparer>
-  let token: MockProxy<TokenGenerator>
+  let tokenHandler: MockProxy<TokenGenerator>
   let sut: Authentication
   let email: string
   let password: string
@@ -21,13 +21,13 @@ describe('Authentication', () => {
     })
     hashComparer = mock()
     hashComparer.compare.mockResolvedValue(true)
-    token = mock()
-    token.generate.mockResolvedValue('encrypted_string')
+    tokenHandler = mock()
+    tokenHandler.generate.mockResolvedValue('encrypted_string')
   })
   beforeEach(() => {
     email = 'any_email@gmail.com'
     password = 'any_password'
-    sut = setAuthentication(usersRepo, hashComparer, token)
+    sut = setAuthentication(usersRepo, hashComparer, tokenHandler)
   })
 
   it('should call usersRepo.loadByEmail with correct input', async () => {
@@ -54,11 +54,11 @@ describe('Authentication', () => {
     expect(hashComparer.compare).toHaveBeenCalledWith({ plainText: password, digest: 'any_hasshed_password' })
     expect(hashComparer.compare).toHaveBeenCalledTimes(1)
   })
-  it('should call token.generate with correct input', async () => {
+  it('should call tokenHandler.generate with correct input', async () => {
     await sut({ email, password })
 
-    expect(token.generate).toHaveBeenCalledWith({ key: 'any_id', expirationInMs: AccessToken.expirationInMs })
-    expect(token.generate).toHaveBeenCalledTimes(1)
+    expect(tokenHandler.generate).toHaveBeenCalledWith({ key: 'any_id', expirationInMs: AccessToken.expirationInMs })
+    expect(tokenHandler.generate).toHaveBeenCalledTimes(1)
   })
 
   it('should return the correct data on success', async () => {
@@ -78,8 +78,8 @@ describe('Authentication', () => {
 
     await expect(userData).rejects.toThrow(new Error('any_error'))
   })
-  it('should rethrow if token.generate throws', async () => {
-    token.generate.mockRejectedValueOnce(new Error('any_error'))
+  it('should rethrow if tokenHandler.generate throws', async () => {
+    tokenHandler.generate.mockRejectedValueOnce(new Error('any_error'))
     const userData = sut({ email, password })
 
     await expect(userData).rejects.toThrow(new Error('any_error'))
