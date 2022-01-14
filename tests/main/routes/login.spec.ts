@@ -56,5 +56,22 @@ describe('Product routes', () => {
       expect(body.name).toEqual('any_name')
       expect(body.token).toBeTruthy()
     })
+    it('should return unauthorized if password is wrong', async () => {
+      const password = await bcrypt.hash('any_password', 12)
+      const fakeUser = pgUserRepo.create({
+        id: v4(),
+        email: 'any_email@mail.com',
+        name: 'any_name',
+        password
+      })
+      await pgUserRepo.persistAndFlush(fakeUser)
+
+      const { statusCode, body } = await request(configApp({ orm: ormStub, storage }))
+        .post('/api/login')
+        .send({ email: 'any_email@mail.com', password: 'invalid_password' })
+
+      expect(statusCode).toBe(401)
+      expect(body.error).toEqual('Unauthorized')
+    })
   })
 })
