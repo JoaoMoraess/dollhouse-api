@@ -73,5 +73,23 @@ describe('Product routes', () => {
       expect(statusCode).toBe(401)
       expect(body.error).toEqual('Unauthorized')
     })
+
+    it('should return unauthorized if email is wrong', async () => {
+      const password = await bcrypt.hash('any_password', 12)
+      const fakeUser = pgUserRepo.create({
+        id: v4(),
+        email: 'any_email@mail.com',
+        name: 'any_name',
+        password
+      })
+      await pgUserRepo.persistAndFlush(fakeUser)
+
+      const { statusCode, body } = await request(configApp({ orm: ormStub, storage }))
+        .post('/api/login')
+        .send({ email: 'invalid_email@mail.com', password: 'any_password' })
+
+      expect(statusCode).toBe(401)
+      expect(body.error).toEqual('Unauthorized')
+    })
   })
 })
