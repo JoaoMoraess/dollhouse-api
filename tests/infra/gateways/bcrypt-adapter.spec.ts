@@ -30,6 +30,11 @@ describe('BcryptAdapter', () => {
       expect(fakeBcrypt.hash).toHaveBeenCalledWith('any_value', salt)
       expect(fakeBcrypt.hash).toHaveBeenCalledTimes(1)
     })
+    it('should return the correct hash on success', async () => {
+      const hash = await sut.hash({ plainText: 'any_value' })
+
+      expect(hash).toEqual('hashed_string')
+    })
   })
 
   describe('compare()', () => {
