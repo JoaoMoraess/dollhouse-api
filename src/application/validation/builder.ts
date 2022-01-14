@@ -1,4 +1,4 @@
-import { NumberLength, Required, RequiredNumber, RequiredString, Validator } from '.'
+import { Email, NumberLength, Required, RequiredNumber, RequiredString, Validator } from '.'
 
 export class ValidationBuilder {
   private constructor (
@@ -29,6 +29,11 @@ export class ValidationBuilder {
 
   maxNumber (max: number): ValidationBuilder {
     this.validators.push(new NumberLength(this.fieldValue, 'max', max, this.fieldName))
+    return this
+  }
+
+  email (): ValidationBuilder {
+    this.validators.push(new Email(this.fieldValue, this.fieldName))
     return this
   }
 

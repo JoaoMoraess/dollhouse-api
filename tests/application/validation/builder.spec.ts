@@ -1,4 +1,4 @@
-import { Required, RequiredNumber, RequiredString, ValidationBuilder } from '@/application/validation'
+import { Required, RequiredNumber, RequiredString, ValidationBuilder, Email } from '@/application/validation'
 
 describe('ValidationBuilder', () => {
   it('should return RequiredString', () => {
@@ -22,5 +22,12 @@ describe('ValidationBuilder', () => {
       .required()
       .build()
     expect(validators).toEqual([new RequiredNumber(2)])
+  })
+  it('should return Email', () => {
+    const validators = ValidationBuilder
+      .of({ fieldValue: 'any_email@gmail.com' })
+      .email()
+      .build()
+    expect(validators).toEqual([new Email('any_email@gmail.com')])
   })
 })
