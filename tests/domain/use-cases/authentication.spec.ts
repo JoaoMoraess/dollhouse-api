@@ -1,12 +1,13 @@
 import { mock, MockProxy } from 'jest-mock-extended'
 import { Authentication, setAuthentication } from '@/domain/use-cases'
-import { LoadUserByEmail, UpdateUserToken } from '@/domain/contracts/repos'
-import { Encrypter, HashComparer } from '@/domain/contracts/cryptography'
+import { LoadUserByEmail } from '@/domain/contracts/repos'
+import { HashComparer, TokenGenerator } from '@/domain/contracts/gateways'
+import { AccessToken } from '@/domain/entities'
 
 describe('Authentication', () => {
-  let usersRepo: MockProxy<LoadUserByEmail & UpdateUserToken>
+  let usersRepo: MockProxy<LoadUserByEmail>
   let hashComparer: MockProxy<HashComparer>
-  let encrypter: MockProxy<Encrypter>
+  let token: MockProxy<TokenGenerator>
   let sut: Authentication
   let email: string
   let password: string
@@ -20,13 +21,13 @@ describe('Authentication', () => {
     })
     hashComparer = mock()
     hashComparer.compare.mockResolvedValue(true)
-    encrypter = mock()
-    encrypter.encrypt.mockResolvedValue('encrypted_string')
+    token = mock()
+    token.generate.mockResolvedValue('encrypted_string')
   })
   beforeEach(() => {
     email = 'any_email@gmail.com'
     password = 'any_password'
-    sut = setAuthentication(usersRepo, hashComparer, encrypter)
+    sut = setAuthentication(usersRepo, hashComparer, token)
   })
 
   it('should call usersRepo.loadByEmail with correct input', async () => {
@@ -53,18 +54,13 @@ describe('Authentication', () => {
     expect(hashComparer.compare).toHaveBeenCalledWith({ plainText: password, digest: 'any_hasshed_password' })
     expect(hashComparer.compare).toHaveBeenCalledTimes(1)
   })
-  it('should call encrypter.encrypt with correct input', async () => {
+  it('should call token.generate with correct input', async () => {
     await sut({ email, password })
 
-    expect(encrypter.encrypt).toHaveBeenCalledWith({ plainText: 'any_id' })
-    expect(encrypter.encrypt).toHaveBeenCalledTimes(1)
+    expect(token.generate).toHaveBeenCalledWith({ key: 'any_id', expirationInMs: AccessToken.expirationInMs })
+    expect(token.generate).toHaveBeenCalledTimes(1)
   })
-  it('should call usersRepo.updateToken with correct input', async () => {
-    await sut({ email, password })
 
-    expect(usersRepo.updateToken).toHaveBeenCalledWith({ id: 'any_id', token: 'encrypted_string' })
-    expect(usersRepo.updateToken).toHaveBeenCalledTimes(1)
-  })
   it('should return the correct data on success', async () => {
     const userData = await sut({ email, password })
 
@@ -82,14 +78,8 @@ describe('Authentication', () => {
 
     await expect(userData).rejects.toThrow(new Error('any_error'))
   })
-  it('should rethrow if encrypter.encrypt throws', async () => {
-    encrypter.encrypt.mockRejectedValueOnce(new Error('any_error'))
-    const userData = sut({ email, password })
-
-    await expect(userData).rejects.toThrow(new Error('any_error'))
-  })
-  it('should rethrow if usersRepo.updateToken throws', async () => {
-    usersRepo.updateToken.mockRejectedValueOnce(new Error('any_error'))
+  it('should rethrow if token.generate throws', async () => {
+    token.generate.mockRejectedValueOnce(new Error('any_error'))
     const userData = sut({ email, password })
 
     await expect(userData).rejects.toThrow(new Error('any_error'))

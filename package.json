@@ -37,6 +37,7 @@
     "prepare": "husky install",
     "lint": "eslint .",
     "lint:fix": "yarn lint -- --fix",
+    "db:update-schema": "mikro-orm schema:update --run",
     "test": "jest --passWithNoTests --forceExit --no-cache --runInBand",
     "test:watch": "yarn test --watch",
     "test:staged": "yarn test --findRelatedTests ",
