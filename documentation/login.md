@@ -1,5 +1,5 @@
 # Fazer Login
-✅
+
 > ## Dados
 * Token de Acesso
 * Nome de usuario
