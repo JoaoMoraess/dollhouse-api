@@ -5,9 +5,10 @@ class JWTHandler implements TokenGenerator {
     private readonly secret: string
   ) {}
 
-  async generate ({ key, expirationInMs }: TokenGenerator.Input): Promise<string> {
-    await jwt.sign({ key }, this.secret, { expiresIn: 1 })
-    return ''
+  generate ({ key, expirationInMs }: TokenGenerator.Input): string {
+    const expiresInSeconds = expirationInMs / 1000
+    const token = jwt.sign({ key }, this.secret, { expiresIn: expiresInSeconds })
+    return token
   }
 }
 jest.mock('jsonwebtoken')
@@ -37,11 +38,17 @@ describe('JWTHandler', () => {
       fakeJwt.sign.mockImplementation(() => token)
     })
 
-    it('should call jwt.sign with correct input', async () => {
-      await sut.generate({ expirationInMs, key })
+    it('should call jwt.sign with correct input', () => {
+      sut.generate({ expirationInMs, key })
 
-      expect(fakeJwt.sign).toHaveBeenCalledWith({ key }, secret, { expiresIn: 1 })
+      expect(fakeJwt.sign).toHaveBeenCalledWith({ key }, secret, { expiresIn: expirationInMs / 1000 })
       expect(fakeJwt.sign).toHaveBeenCalledTimes(1)
+    })
+
+    it('should return a token', () => {
+      const generatedToken = sut.generate({ key, expirationInMs })
+
+      expect(generatedToken).toBe(token)
     })
   })
 })

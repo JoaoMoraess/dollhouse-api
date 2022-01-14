@@ -22,7 +22,7 @@ describe('Authentication', () => {
     hashComparer = mock()
     hashComparer.compare.mockResolvedValue(true)
     tokenHandler = mock()
-    tokenHandler.generate.mockResolvedValue('encrypted_string')
+    tokenHandler.generate.mockReturnValue('encrypted_string')
   })
   beforeEach(() => {
     email = 'any_email@gmail.com'
@@ -74,12 +74,6 @@ describe('Authentication', () => {
   })
   it('should rethrow if hashComparer.compare throws', async () => {
     hashComparer.compare.mockRejectedValueOnce(new Error('any_error'))
-    const userData = sut({ email, password })
-
-    await expect(userData).rejects.toThrow(new Error('any_error'))
-  })
-  it('should rethrow if tokenHandler.generate throws', async () => {
-    tokenHandler.generate.mockRejectedValueOnce(new Error('any_error'))
     const userData = sut({ email, password })
 
     await expect(userData).rejects.toThrow(new Error('any_error'))

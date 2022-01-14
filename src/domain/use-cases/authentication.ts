@@ -14,7 +14,7 @@ export const setAuthentication: Setup = (
   if (user !== undefined && user !== null) {
     const isValidUser = await hashComparer.compare({ plainText: password, digest: user.password })
     if (isValidUser) {
-      const token = await tokenHandler.generate({ key: user.id, expirationInMs: AccessToken.expirationInMs })
+      const token = tokenHandler.generate({ key: user.id, expirationInMs: AccessToken.expirationInMs })
       return { name: user.name, token }
     }
   }
