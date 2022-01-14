@@ -2,11 +2,11 @@ import { LoadProductsByIds } from '@/domain/contracts/repos'
 import { LocalProducts } from '@/domain/entities'
 import { InvalidCartError, NoLongerInStock } from '@/domain/errors'
 
-export type CheckProductsIsValid = (input: { localProducts: LocalProducts }) => Promise<Error | null>
+export type ValidateProducts = (input: { localProducts: LocalProducts }) => Promise<Error | null>
 
-type SetCheckProductsIsValid = (productsRepo: LoadProductsByIds) => CheckProductsIsValid
+type SetValidateProducts = (productsRepo: LoadProductsByIds) => ValidateProducts
 
-export const setCheckProductIsValid: SetCheckProductsIsValid = (productsRepo) => async ({ localProducts }) => {
+export const setValidateProducts: SetValidateProducts = (productsRepo) => async ({ localProducts }) => {
   const ids = Object.keys(localProducts)
   const products = await productsRepo.loadByIds(ids)
   if (products.length !== ids.length) return new InvalidCartError()

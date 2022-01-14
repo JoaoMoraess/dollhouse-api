@@ -19,7 +19,7 @@ describe('EffectPurchaseController', () => {
   let httpRequest: HttpRequest
   let sut: EffectPurchaseController
   let effectPurchase: jest.Mock
-  let checkProductsIsValid: jest.Mock
+  let ValidateProducts: jest.Mock
 
   beforeAll(() => {
     httpRequest = {
@@ -36,10 +36,10 @@ describe('EffectPurchaseController', () => {
       cardSecurityCode: '876'
     }
     effectPurchase = jest.fn().mockResolvedValue(() => {})
-    checkProductsIsValid = jest.fn().mockResolvedValue(null)
+    ValidateProducts = jest.fn().mockResolvedValue(null)
   })
   beforeEach(() => {
-    sut = new EffectPurchaseController(checkProductsIsValid, effectPurchase)
+    sut = new EffectPurchaseController(ValidateProducts, effectPurchase)
   })
 
   it('should extend Controller', async () => {
@@ -72,7 +72,7 @@ describe('EffectPurchaseController', () => {
     expect(httpResponse).toEqual(noContent())
   })
   it('should return 401 with InvalidCart if cart is invalid', async () => {
-    checkProductsIsValid.mockResolvedValueOnce(new InvalidCartError())
+    ValidateProducts.mockResolvedValueOnce(new InvalidCartError())
     const httpResponse = await sut.handle(httpRequest)
 
     expect(httpResponse).toEqual(badRequest(new InvalidCartError()))
@@ -80,7 +80,7 @@ describe('EffectPurchaseController', () => {
   })
 
   it('should return 401 NoLongerInStock if products is out of stock', async () => {
-    checkProductsIsValid.mockResolvedValueOnce(new NoLongerInStock('any_name', 2))
+    ValidateProducts.mockResolvedValueOnce(new NoLongerInStock('any_name', 2))
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse).toEqual(badRequest(new NoLongerInStock('any_name', 2)))
     expect(effectPurchase).not.toHaveBeenCalled()

@@ -1,11 +1,11 @@
 import { mock, MockProxy } from 'jest-mock-extended'
 import { LoadProductsByIds } from '@/domain/contracts/repos'
 import { LocalProducts } from '@/domain/entities'
-import { CheckProductsIsValid, setCheckProductIsValid } from '@/domain/use-cases'
+import { ValidateProducts, setValidateProducts } from '@/domain/use-cases'
 import { InvalidCartError, NoLongerInStock } from '@/domain/errors'
 
-describe('CheckProductsIsValid', () => {
-  let sut: CheckProductsIsValid
+describe('ValidateProducts', () => {
+  let sut: ValidateProducts
   let productsRepo: MockProxy<LoadProductsByIds>
   let localProducts: LocalProducts
 
@@ -32,7 +32,7 @@ describe('CheckProductsIsValid', () => {
   })
 
   beforeEach(() => {
-    sut = setCheckProductIsValid(productsRepo)
+    sut = setValidateProducts(productsRepo)
   })
 
   it('should call productsRepo.loadByIds with correct values', async () => {

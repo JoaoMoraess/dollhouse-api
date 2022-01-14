@@ -8,13 +8,13 @@ describe('LoadPurchaseInfoController', () => {
   let sut: LoadPurchaseInfoController
   let localProducts: LocalProducts
   let loadPurchaseInfo: jest.Mock
-  let checkProductsIsValid: jest.Mock
+  let ValidateProducts: jest.Mock
 
   beforeAll(() => {
     localProducts = {
       any_id: 1
     }
-    checkProductsIsValid = jest.fn().mockResolvedValue(null)
+    ValidateProducts = jest.fn().mockResolvedValue(null)
 
     loadPurchaseInfo = jest.fn().mockResolvedValue({
       products: [{
@@ -27,7 +27,7 @@ describe('LoadPurchaseInfoController', () => {
     })
   })
   beforeEach(() => {
-    sut = new LoadPurchaseInfoController(checkProductsIsValid, loadPurchaseInfo)
+    sut = new LoadPurchaseInfoController(ValidateProducts, loadPurchaseInfo)
   })
 
   it('should extend Controller', async () => {
@@ -67,7 +67,7 @@ describe('LoadPurchaseInfoController', () => {
   })
 
   it('should return 401 with InvalidCart if cart is invalid', async () => {
-    checkProductsIsValid.mockResolvedValueOnce(new InvalidCartError())
+    ValidateProducts.mockResolvedValueOnce(new InvalidCartError())
     const httpResponse = await sut.handle({ localProducts })
 
     expect(httpResponse).toEqual(badRequest(new InvalidCartError()))
@@ -75,7 +75,7 @@ describe('LoadPurchaseInfoController', () => {
   })
 
   it('should return 401 NoLongerInStock if products is out of stock', async () => {
-    checkProductsIsValid.mockResolvedValueOnce(new NoLongerInStock('any_name', 2))
+    ValidateProducts.mockResolvedValueOnce(new NoLongerInStock('any_name', 2))
     const httpResponse = await sut.handle({ localProducts })
     expect(httpResponse).toEqual(badRequest(new NoLongerInStock('any_name', 2)))
     expect(loadPurchaseInfo).not.toHaveBeenCalled()
