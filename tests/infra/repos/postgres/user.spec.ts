@@ -2,19 +2,10 @@ import { IBackup } from 'pg-mem'
 import { makeFakeDb } from '../mocks/connection'
 import { PgConnection } from '@/infra/repos/postgres/helpers/connection'
 import { Repository } from '@/infra/repos/postgres/repository'
-import { LoadUserByEmail } from '@/domain/contracts/repos'
 import { User } from '@/infra/repos/postgres/entities/User'
 import { EntityRepository } from '@mikro-orm/core'
 import { v4 } from 'uuid'
-
-export class PgUserRepository extends Repository implements LoadUserByEmail {
-  private readonly userRepository = this.getRepository<User>('User')
-
-  async loadByEmail ({ email }: { email: string }): Promise<{ id: string, name: string, password: string } | null> {
-    const [{ id, name, password }] = await this.userRepository.find({ email }, { fields: ['id', 'name', 'password'] })
-    return { id, name, password }
-  }
-}
+import { PgUserRepository } from '@/infra/repos/postgres'
 
 describe('PgUserRepository', () => {
   let sut: PgUserRepository
@@ -47,7 +38,7 @@ describe('PgUserRepository', () => {
     expect(sut).toBeInstanceOf(Repository)
   })
 
-  describe('LoaduserByEmail', () => {
+  describe('LoadUserByEmail', () => {
     it('should return the correct user', async () => {
       await pgUserRepo.persistAndFlush(pgUserRepo.create({
         id: userId,
