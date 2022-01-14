@@ -22,9 +22,8 @@ const setRegistration: Setup = (usersRepo, hasher, tokenHandler) => async ({ ema
     name,
     password: hashedPassword
   })
-  tokenHandler.generate({ key: id, expirationInMs: AccessToken.expirationInMs })
-
-  return null
+  const token = tokenHandler.generate({ key: id, expirationInMs: AccessToken.expirationInMs })
+  return { name, token }
 }
 
 describe('Registration', () => {
@@ -60,8 +59,12 @@ describe('Registration', () => {
     expect(usersRepo.loadByEmail).toHaveBeenCalledTimes(1)
   })
 
-  it('should return null if usersRepo.loadByEmail returns null', async () => {
-    usersRepo.loadByEmail.mockResolvedValueOnce(null)
+  it('should return null if usersRepo.loadByEmail not returns null', async () => {
+    usersRepo.loadByEmail.mockResolvedValueOnce({
+      id: 'any_id',
+      name: 'any_name',
+      password: 'hashed_password'
+    })
     const authenticationModel = await sut({ email, name, password })
 
     expect(authenticationModel).toEqual(null)
@@ -83,5 +86,13 @@ describe('Registration', () => {
 
     expect(tokenHandler.generate).toHaveBeenCalledWith({ key: 'any_id', expirationInMs: AccessToken.expirationInMs })
     expect(tokenHandler.generate).toBeCalledTimes(1)
+  })
+  it('should return the correct data on success', async () => {
+    const authenticationModel = await sut({ email, name, password })
+
+    expect(authenticationModel).toEqual({
+      token: 'any_token',
+      name: 'any_name'
+    })
   })
 })
