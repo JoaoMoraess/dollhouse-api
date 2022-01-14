@@ -79,4 +79,9 @@ describe('RegistrationController', () => {
     expect(registration).toHaveBeenCalledWith({ name: httpRequest.name, email: httpRequest.email, password: httpRequest.password })
     expect(registration).toHaveBeenCalledTimes(1)
   })
+  it('should return the correct data on success', async () => {
+    const httpResponse = await sut.handle(httpRequest)
+
+    expect(httpResponse).toEqual(ok({ name: 'any_name', token: 'any_token' }))
+  })
 })
