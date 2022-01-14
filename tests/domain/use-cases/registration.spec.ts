@@ -73,4 +73,23 @@ describe('Registration', () => {
       name: 'any_name'
     })
   })
+  it('should rethrow usersRepo.loadByEmail throw', async () => {
+    usersRepo.loadByEmail.mockRejectedValueOnce(new Error('repo_error'))
+    const promise = sut({ email, name, password })
+
+    await expect(promise).rejects.toThrow(new Error('repo_error'))
+  })
+
+  it('should rethrow hasher throw', async () => {
+    hasher.hash.mockRejectedValueOnce(new Error('hasher_error'))
+    const promise = sut({ email, name, password })
+
+    await expect(promise).rejects.toThrow(new Error('hasher_error'))
+  })
+  it('should rethrow usersRepo.save throw', async () => {
+    usersRepo.save.mockRejectedValueOnce(new Error('repo_error'))
+    const promise = sut({ email, name, password })
+
+    await expect(promise).rejects.toThrow(new Error('repo_error'))
+  })
 })
