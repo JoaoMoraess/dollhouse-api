@@ -1,4 +1,4 @@
-import { Email, NumberLength, Required, RequiredNumber, RequiredString, Validator } from '.'
+import { Email, FieldToCompare, NumberLength, Required, RequiredNumber, RequiredString, Validator } from '.'
 
 export class ValidationBuilder {
   private constructor (
@@ -34,6 +34,11 @@ export class ValidationBuilder {
 
   email (): ValidationBuilder {
     this.validators.push(new Email(this.fieldValue, this.fieldName))
+    return this
+  }
+
+  compare (field: string): ValidationBuilder {
+    this.validators.push(new FieldToCompare(this.fieldValue, field, this.fieldName))
     return this
   }
 

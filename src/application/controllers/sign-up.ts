@@ -24,12 +24,11 @@ export class SignUpController extends Controller {
   }
 
   override buildValidators ({ name, email, password, passwordConfirmation }: HttpRequest): Validator[] {
-    // TODO fazer o compareFieldsValidator
     return [
       ...ValidationBuilder.of({ fieldValue: name, fieldName: 'name' }).required().build(),
       ...ValidationBuilder.of({ fieldValue: email, fieldName: 'email' }).required().email().build(),
       ...ValidationBuilder.of({ fieldValue: password, fieldName: 'password' }).required().build(),
-      ...ValidationBuilder.of({ fieldValue: passwordConfirmation, fieldName: 'passwordConfirmation' }).required().build()
+      ...ValidationBuilder.of({ fieldValue: passwordConfirmation, fieldName: 'passwordConfirmation' }).compare(password).required().build()
     ]
   }
 }

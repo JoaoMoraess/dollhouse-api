@@ -38,7 +38,7 @@ describe('Product routes', () => {
   })
 
   describe('POST /login', () => {
-    it('should return products on success', async () => {
+    it('should return the correct data on success', async () => {
       const password = await bcrypt.hash('any_password', 12)
       const fakeUser = pgUserRepo.create({
         id: v4(),
@@ -87,6 +87,37 @@ describe('Product routes', () => {
       const { statusCode, body } = await request(configApp({ orm: ormStub, storage }))
         .post('/api/login')
         .send({ email: 'invalid_email@mail.com', password: 'any_password' })
+
+      expect(statusCode).toBe(401)
+      expect(body.error).toEqual('Unauthorized')
+    })
+  })
+  describe('POST /signup', () => {
+    it('should return the correct data on success', async () => {
+      const { statusCode, body } = await request(configApp({ orm: ormStub, storage }))
+        .post('/api/signup')
+        .send({ name: 'any_name', email: 'any_email@mail.com', password: 'any_password', passwordConfirmation: 'any_password' })
+
+      const savedUser = await pgUserRepo.findOne({ email: 'any_email@mail.com' })
+
+      expect(statusCode).toBe(200)
+      expect(body.name).toEqual('any_name')
+      expect(body.token).toBeTruthy()
+      expect(savedUser?.role).toBeNull()
+    })
+    it('should return unauthorized if email already registred', async () => {
+      const password = await bcrypt.hash('any_password', 12)
+      const fakeUser = pgUserRepo.create({
+        id: v4(),
+        email: 'any_email123@mail.com',
+        name: 'any_name',
+        password
+      })
+      await pgUserRepo.persistAndFlush(fakeUser)
+
+      const { statusCode, body } = await request(configApp({ orm: ormStub, storage }))
+        .post('/api/signup')
+        .send({ name: 'any_name', email: 'any_email123@mail.com', password: 'any_password', passwordConfirmation: 'any_password' })
 
       expect(statusCode).toBe(401)
       expect(body.error).toEqual('Unauthorized')

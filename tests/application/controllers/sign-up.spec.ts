@@ -1,6 +1,6 @@
 import { Controller, SignUpController } from '@/application/controllers'
 import { ok, unauthorized } from '@/application/helpers'
-import { Email, RequiredString } from '@/application/validation'
+import { Email, RequiredString, FieldToCompare } from '@/application/validation'
 
 type HttpRequest = {
   name: string
@@ -43,6 +43,7 @@ describe('SignUpController', () => {
       new RequiredString(httpRequest.email, 'email'),
       new Email(httpRequest.email, 'email'),
       new RequiredString(httpRequest.password, 'password'),
+      new FieldToCompare(httpRequest.passwordConfirmation, httpRequest.password, 'passwordConfirmation'),
       new RequiredString(httpRequest.passwordConfirmation, 'passwordConfirmation')
     ])
   })
