@@ -5,7 +5,7 @@ import { Middleware } from '@/application/contracts'
 class AuthenticationMiddleware implements Middleware {
   constructor (private readonly authorize: Authorize) {}
 
-  async handle ({ authorization }: HttpRequest): Promise<HttpResponse> {
+  async handle ({ authorization }: HttpRequest): Promise<HttpResponse<Error | {userId: string}>> {
     if (!this.validate({ authorization })) return forbidden()
     try {
       const userId = await this.authorize({ authorization })
