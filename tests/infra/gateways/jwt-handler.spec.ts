@@ -51,33 +51,17 @@ describe('JWTHandler', () => {
       fakeJwt.verify.mockImplementation(() => ({ key }))
     })
 
-    it('should call verify with correct input', async () => {
-      await sut.validate({ token })
+    it('should call verify with correct input', () => {
+      sut.validate({ token })
 
       expect(fakeJwt.verify).toHaveBeenCalledWith(token, secret)
       expect(fakeJwt.verify).toHaveBeenCalledTimes(1)
     })
 
-    it('should return the key used to verify', async () => {
-      const generatedKey = await sut.validate({ token })
+    it('should return the key used to verify', () => {
+      const generatedKey = sut.validate({ token })
 
       expect(generatedKey).toBe(key)
-    })
-
-    it('should rethrow if verify throws', async () => {
-      fakeJwt.verify.mockImplementationOnce(() => { throw new Error('key_error') })
-
-      const promise = sut.validate({ token })
-
-      await expect(promise).rejects.toThrow(new Error('key_error'))
-    })
-
-    it('should throw if verify returns null', async () => {
-      fakeJwt.verify.mockImplementationOnce(() => null)
-
-      const promise = sut.validate({ token })
-
-      await expect(promise).rejects.toThrow()
     })
   })
 })
