@@ -11,7 +11,11 @@ type Setup = (middleware: Middleware) => RequestHandler
 
 export const adaptExpressMiddleware: Setup = middleware => async (req, res, next) => {
   const { statusCode, data } = await middleware.handle({ ...req.headers })
-  if (statusCode !== 200) {
+  if (statusCode === 200) {
+    const validEntries = Object.entries(data).filter(([, value]) => value)
+    req.locals = { ...req.locals, ...Object.fromEntries(validEntries) }
+    next()
+  } else {
     res.status(statusCode).json({ error: data.message })
   }
 }
@@ -29,7 +33,10 @@ describe('AdaptExpressMiddleware', () => {
     next = getMockRes().next
 
     middleware = mock<Middleware>()
-    middleware.handle.mockResolvedValue({ statusCode: 200, data: null })
+    middleware.handle.mockResolvedValue({
+      statusCode: 200,
+      data: { anyData: 'any_data' }
+    })
   })
 
   beforeEach(() => {
@@ -49,5 +56,21 @@ describe('AdaptExpressMiddleware', () => {
     expect(res.json).toHaveBeenCalledTimes(1)
     expect(res.status).toHaveBeenCalledWith(301)
     expect(res.status).toHaveBeenCalledTimes(1)
+  })
+  it('should return an error if middleware.handle returns 200', async () => {
+    middleware.handle.mockResolvedValueOnce({ data: { message: 'any_error' }, statusCode: 301 })
+    await sut(req, res, next)
+
+    expect(res.json).toHaveBeenCalledWith({ error: 'any_error' })
+    expect(res.json).toHaveBeenCalledTimes(1)
+    expect(res.status).toHaveBeenCalledWith(301)
+    expect(res.status).toHaveBeenCalledTimes(1)
+  })
+
+  it('should add valid data to req.locals', async () => {
+    await sut(req, res, next)
+
+    expect(req.locals).toEqual({ anyData: 'any_data' })
+    expect(next).toHaveBeenCalledTimes(1)
   })
 })
