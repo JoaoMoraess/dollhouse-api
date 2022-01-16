@@ -29,8 +29,8 @@ export const setupEffectPurchase: SetupEffectPurchase = (
   deliveryCalculator,
   chargePurchase
 ) => async input => {
-  const { products, subTotal } = await loadPurchaseInfo({ localProducts: input.localProducts })
-  console.log(products[0].stock)// TODO remover log e adionar productsRepo.updateProductsStock
+  const { subTotal } = await loadPurchaseInfo({ localProducts: input.localProducts })
+  // TODO Adionar productsRepo.updateProductsStock
 
   const orderProducts: Array<{productId: string, quantity: number}> = Object
     .keys(input.localProducts)
