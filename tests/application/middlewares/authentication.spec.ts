@@ -1,14 +1,19 @@
 import { RequiredString } from '@/application/validation'
 import { forbidden, HttpResponse, ok } from '@/application/helpers'
+import { Middleware } from '@/application/contracts'
 
-class AuthenticationMiddleware {
+class AuthenticationMiddleware implements Middleware {
   constructor (private readonly authorize: Authorize) {}
 
   async handle ({ token }: HttpRequest): Promise<HttpResponse> {
     if (!this.validate({ token })) return forbidden()
-    const userId = await this.authorize({ token })
+    try {
+      const userId = await this.authorize({ token })
 
-    return ok({ userId })
+      return ok({ userId })
+    } catch {
+      return forbidden()
+    }
   }
 
   private validate ({ token }: {token: string}): boolean {
@@ -22,10 +27,11 @@ type Authorize = (input: {token: string}) => Promise<string>
 
 describe('AuthenticationMiddleware', () => {
   let sut: AuthenticationMiddleware
-  let authorize: Authorize
+  let authorize: jest.Mock
 
   beforeAll(() => {
-    authorize = jest.fn().mockResolvedValue('any_user_id')
+    authorize = jest.fn()
+    authorize.mockResolvedValue('any_user_id')
   })
 
   beforeEach(() => {
@@ -44,9 +50,17 @@ describe('AuthenticationMiddleware', () => {
     expect(authorize).not.toHaveBeenCalled()
     expect(httpResonse).toEqual(forbidden())
   })
+
   it('should return the correct value on success', async () => {
     const httpResonse = await sut.handle({ token: 'any_token' })
 
     expect(httpResonse).toEqual(ok({ userId: 'any_user_id' }))
+  })
+
+  it('should return forbiden if authorization throws', async () => {
+    authorize.mockRejectedValueOnce(new Error('any_error'))
+    const httpResonse = await sut.handle({ token: 'any_token' })
+
+    expect(httpResonse).toEqual(forbidden())
   })
 })
