@@ -41,7 +41,7 @@ describe('JWTHandler', () => {
       expect(generatedToken).toBe(token)
     })
   })
-  describe('validate', () => {
+  describe('validate()', () => {
     let token: string
     let key: string
 
@@ -62,6 +62,22 @@ describe('JWTHandler', () => {
       const generatedKey = await sut.validate({ token })
 
       expect(generatedKey).toBe(key)
+    })
+
+    it('should rethrow if verify throws', async () => {
+      fakeJwt.verify.mockImplementationOnce(() => { throw new Error('key_error') })
+
+      const promise = sut.validate({ token })
+
+      await expect(promise).rejects.toThrow(new Error('key_error'))
+    })
+
+    it('should throw if verify returns null', async () => {
+      fakeJwt.verify.mockImplementationOnce(() => null)
+
+      const promise = sut.validate({ token })
+
+      await expect(promise).rejects.toThrow()
     })
   })
 })
