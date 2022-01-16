@@ -73,4 +73,12 @@ describe('AdaptExpressMiddleware', () => {
     expect(req.locals).toEqual({ anyData: 'any_data' })
     expect(next).toHaveBeenCalledTimes(1)
   })
+
+  it('should not add invalid data to req.locals', async () => {
+    middleware.handle.mockResolvedValueOnce({ data: { invalidProp: null, anyData: 'any_data' }, statusCode: 200 })
+    await sut(req, res, next)
+
+    expect(req.locals).toEqual({ anyData: 'any_data' })
+    expect(next).toHaveBeenCalledTimes(1)
+  })
 })
