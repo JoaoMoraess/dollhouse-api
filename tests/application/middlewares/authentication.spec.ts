@@ -39,4 +39,11 @@ describe('AuthenticationMiddleware', () => {
 
     expect(httpResonse).toEqual(forbidden())
   })
+
+  it('should return forbiden authorize return invalid role', async () => {
+    authorize.mockResolvedValueOnce({ key: 'any_user_id', userRole: 'invalid_role' })
+    const httpResonse = await sut.handle({ authorization: 'any_authorization' })
+
+    expect(httpResonse).toEqual(forbidden())
+  })
 })
