@@ -13,9 +13,9 @@ export class LoginController extends Controller {
 
   override async perform ({ email, password }: HttpRequest): Promise<HttpResponse<any>> {
     const userData = await this.authentication({ email, password })
-    if (userData !== null && userData !== undefined) return ok(userData)
+    if (userData === null || userData === undefined) return unauthorized()
 
-    return unauthorized()
+    return ok(userData)
   }
 
   override buildValidators ({ email, password }: HttpRequest): Validator[] {
