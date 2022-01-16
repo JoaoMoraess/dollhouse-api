@@ -5,10 +5,10 @@ import { Middleware } from '@/application/contracts'
 class AuthenticationMiddleware implements Middleware {
   constructor (private readonly authorize: Authorize) {}
 
-  async handle ({ token }: HttpRequest): Promise<HttpResponse> {
-    if (!this.validate({ token })) return forbidden()
+  async handle ({ authorization }: HttpRequest): Promise<HttpResponse> {
+    if (!this.validate({ authorization })) return forbidden()
     try {
-      const userId = await this.authorize({ token })
+      const userId = await this.authorize({ authorization })
 
       return ok({ userId })
     } catch {
@@ -16,14 +16,14 @@ class AuthenticationMiddleware implements Middleware {
     }
   }
 
-  private validate ({ token }: {token: string}): boolean {
-    const error = new RequiredString(token).validate()
+  private validate ({ authorization }: {authorization: string}): boolean {
+    const error = new RequiredString(authorization).validate()
     return error === undefined
   }
 }
 
-type HttpRequest = {token: string}
-type Authorize = (input: {token: string}) => Promise<string>
+type HttpRequest = {authorization: string}
+type Authorize = (input: {authorization: string}) => Promise<string>
 
 describe('AuthenticationMiddleware', () => {
   let sut: AuthenticationMiddleware
@@ -39,27 +39,27 @@ describe('AuthenticationMiddleware', () => {
   })
 
   it('should call authorize with correct input', async () => {
-    await sut.handle({ token: 'any_token' })
+    await sut.handle({ authorization: 'any_authorization' })
 
-    expect(authorize).toHaveBeenCalledWith({ token: 'any_token' })
+    expect(authorize).toHaveBeenCalledWith({ authorization: 'any_authorization' })
   })
 
   it('should validate httpRequest correctly', async () => {
-    const httpResonse = await sut.handle({ token: null as any })
+    const httpResonse = await sut.handle({ authorization: null as any })
 
     expect(authorize).not.toHaveBeenCalled()
     expect(httpResonse).toEqual(forbidden())
   })
 
   it('should return the correct value on success', async () => {
-    const httpResonse = await sut.handle({ token: 'any_token' })
+    const httpResonse = await sut.handle({ authorization: 'any_authorization' })
 
     expect(httpResonse).toEqual(ok({ userId: 'any_user_id' }))
   })
 
   it('should return forbiden if authorization throws', async () => {
     authorize.mockRejectedValueOnce(new Error('any_error'))
-    const httpResonse = await sut.handle({ token: 'any_token' })
+    const httpResonse = await sut.handle({ authorization: 'any_authorization' })
 
     expect(httpResonse).toEqual(forbidden())
   })
