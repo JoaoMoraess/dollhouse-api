@@ -1,9 +1,12 @@
+import { UserRole } from '@/domain/entities'
+
 export interface TokenGenerator {
-  generate: (input: TokenGenerator.Input) => TokenGenerator.Output
+  generate: (input: TokenGenerator.Input) => Promise<TokenGenerator.Output>
 }
 
 export namespace TokenGenerator {
   export type Input = {
+    userRole: UserRole
     key: string
     expirationInMs: number
   }
@@ -11,7 +14,7 @@ export namespace TokenGenerator {
 }
 
 export interface TokenValidator {
-  validate: (input: TokenValidator.Input) => TokenValidator.Output
+  validate: (input: TokenValidator.Input) => Promise<TokenValidator.Output>
 }
 
 export namespace TokenValidator {

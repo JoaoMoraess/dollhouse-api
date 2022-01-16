@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { JWTHandler } from '@/infra/gateways'
+import { UserRole } from '@/domain/entities'
 
 jest.mock('jsonwebtoken')
 
@@ -19,24 +20,26 @@ describe('JWTHandler', () => {
   describe('generate()', () => {
     let token: string
     let expirationInMs: number
+    let userRole: UserRole
     let key: string
 
     beforeAll(() => {
+      userRole = 'customer'
       token = 'any_token'
       expirationInMs = 1000
       key = 'any_key'
       fakeJwt.sign.mockImplementation(() => token)
     })
 
-    it('should call jwt.sign with correct input', () => {
-      sut.generate({ expirationInMs, key })
+    it('should call jwt.sign with correct input', async () => {
+      await sut.generate({ expirationInMs, userRole, key })
 
-      expect(fakeJwt.sign).toHaveBeenCalledWith({ key }, secret, { expiresIn: expirationInMs / 1000 })
+      expect(fakeJwt.sign).toHaveBeenCalledWith({ key, userRole }, secret, { expiresIn: expirationInMs / 1000 })
       expect(fakeJwt.sign).toHaveBeenCalledTimes(1)
     })
 
-    it('should return a token', () => {
-      const generatedToken = sut.generate({ key, expirationInMs })
+    it('should return a token', async () => {
+      const generatedToken = await sut.generate({ key, userRole, expirationInMs })
 
       expect(generatedToken).toBe(token)
     })
@@ -51,15 +54,15 @@ describe('JWTHandler', () => {
       fakeJwt.verify.mockImplementation(() => ({ key }))
     })
 
-    it('should call verify with correct input', () => {
-      sut.validate({ token })
+    it('should call verify with correct input', async () => {
+      await sut.validate({ token })
 
       expect(fakeJwt.verify).toHaveBeenCalledWith(token, secret)
       expect(fakeJwt.verify).toHaveBeenCalledTimes(1)
     })
 
-    it('should return the key used to verify', () => {
-      const generatedKey = sut.validate({ token })
+    it('should return the key used to verify', async () => {
+      const generatedKey = await sut.validate({ token })
 
       expect(generatedKey).toBe(key)
     })

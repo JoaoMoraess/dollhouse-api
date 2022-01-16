@@ -17,12 +17,13 @@ describe('Authentication', () => {
     usersRepo.loadByEmail.mockResolvedValue({
       id: 'any_id',
       name: 'any_name',
-      password: 'any_hasshed_password'
+      password: 'any_hasshed_password',
+      role: 'customer'
     })
     hashComparer = mock()
     hashComparer.compare.mockResolvedValue(true)
     tokenHandler = mock()
-    tokenHandler.generate.mockReturnValue('encrypted_string')
+    tokenHandler.generate.mockResolvedValue('encrypted_string')
   })
   beforeEach(() => {
     email = 'any_email@gmail.com'
@@ -57,7 +58,7 @@ describe('Authentication', () => {
   it('should call tokenHandler.generate with correct input', async () => {
     await sut({ email, password })
 
-    expect(tokenHandler.generate).toHaveBeenCalledWith({ key: 'any_id', expirationInMs: AccessToken.expirationInMs })
+    expect(tokenHandler.generate).toHaveBeenCalledWith({ key: 'any_id', userRole: 'customer', expirationInMs: AccessToken.expirationInMs })
     expect(tokenHandler.generate).toHaveBeenCalledTimes(1)
   })
 

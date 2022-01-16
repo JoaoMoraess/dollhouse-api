@@ -1,4 +1,5 @@
 import { LoadUserByEmail, SaveUser } from '@/domain/contracts/repos'
+import { UserRole } from '@/domain/entities'
 import { v4 } from 'uuid'
 import { User } from './entities/User'
 import { Repository } from './repository'
@@ -6,11 +7,11 @@ import { Repository } from './repository'
 export class PgUserRepository extends Repository implements LoadUserByEmail, SaveUser {
   private readonly userRepository = this.getRepository<User>('User')
 
-  async loadByEmail ({ email }: { email: string }): Promise<{ id: string, name: string, password: string } | null> {
+  async loadByEmail ({ email }: { email: string }): Promise<{ id: string, name: string, password: string, role: UserRole } | null> {
     const user = await this.userRepository.findOne({ email })
     if (user !== undefined && user !== null) {
-      const { id, name, password } = user
-      return { id, name, password }
+      const { id, name, password, role } = user
+      return { id, name, password, role }
     }
     return null
   }
@@ -21,7 +22,7 @@ export class PgUserRepository extends Repository implements LoadUserByEmail, Sav
       name,
       email,
       password,
-      role: null
+      role: 'customer'
     })
     await this.userRepository.persistAndFlush(user)
 

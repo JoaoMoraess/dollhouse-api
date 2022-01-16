@@ -20,7 +20,7 @@ describe('Registration', () => {
     hasher = mock<Hasher>()
     hasher.hash.mockResolvedValue('hashed_string')
     tokenHandler = mock<TokenGenerator>()
-    tokenHandler.generate.mockReturnValue('any_token')
+    tokenHandler.generate.mockResolvedValue('any_token')
   })
 
   beforeEach(() => {
@@ -41,7 +41,8 @@ describe('Registration', () => {
     usersRepo.loadByEmail.mockResolvedValueOnce({
       id: 'any_id',
       name: 'any_name',
-      password: 'hashed_password'
+      password: 'hashed_password',
+      role: 'customer'
     })
     const authenticationModel = await sut({ email, name, password })
 
@@ -62,7 +63,7 @@ describe('Registration', () => {
   it('should call tokenHandler.generate with correct input', async () => {
     await sut({ email, name, password })
 
-    expect(tokenHandler.generate).toHaveBeenCalledWith({ key: 'any_id', expirationInMs: AccessToken.expirationInMs })
+    expect(tokenHandler.generate).toHaveBeenCalledWith({ key: 'any_id', userRole: 'customer', expirationInMs: AccessToken.expirationInMs })
     expect(tokenHandler.generate).toBeCalledTimes(1)
   })
   it('should return the correct data on success', async () => {

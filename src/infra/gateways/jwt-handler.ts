@@ -1,19 +1,20 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 import { TokenGenerator, TokenValidator } from '@/domain/contracts/gateways'
-import jwt from 'jsonwebtoken'
+import jwt, { JwtPayload } from 'jsonwebtoken'
 
 export class JWTHandler implements TokenGenerator, TokenValidator {
   constructor (
     private readonly secret: string
   ) {}
 
-  generate ({ key, expirationInMs }: TokenGenerator.Input): string {
+  async generate ({ key, userRole, expirationInMs }: TokenGenerator.Input): Promise<TokenGenerator.Output> {
     const expiresInSeconds = expirationInMs / 1000
-    const token = jwt.sign({ key }, this.secret, { expiresIn: expiresInSeconds })
+    const token = await jwt.sign({ key, userRole }, this.secret, { expiresIn: expiresInSeconds })
     return token
   }
 
-  validate ({ token }: TokenValidator.Input): TokenValidator.Output {
-    const payload = jwt.verify(token, this.secret)
+  async validate ({ token }: TokenValidator.Input): Promise<TokenValidator.Output> {
+    const payload = await jwt.verify(token, this.secret) as JwtPayload
     return payload.key
   }
 }

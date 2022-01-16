@@ -45,7 +45,7 @@ describe('PgUserRepository', () => {
         email,
         name: 'any_name',
         password: 'any_password',
-        role: null
+        role: 'customer'
       }))
 
       const user = await sut.loadByEmail({ email })
@@ -53,7 +53,8 @@ describe('PgUserRepository', () => {
       expect(user).toEqual({
         id: userId,
         name: 'any_name',
-        password: 'any_password'
+        password: 'any_password',
+        role: 'customer'
       })
     })
   })
@@ -70,6 +71,7 @@ describe('PgUserRepository', () => {
       expect(savedUser).toBeTruthy()
       expect(savedUser?.id).toEqual(id)
       expect(savedUser?.name).toEqual('any_name')
+      expect(savedUser?.role).toEqual('customer')
     })
   })
 })

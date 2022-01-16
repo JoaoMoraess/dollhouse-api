@@ -1,3 +1,4 @@
+import { UserRole } from '@/domain/entities'
 import { Entity, PrimaryKey, Property } from '@mikro-orm/core'
 
 @Entity({ collection: 'User' })
@@ -14,6 +15,6 @@ export class User {
   @Property({ columnType: 'text' })
   password!: string
 
-  @Property({ columnType: 'text', nullable: true })
-  role?: string
+  @Property({ columnType: 'text', nullable: false })
+  role: UserRole = 'customer'
 }

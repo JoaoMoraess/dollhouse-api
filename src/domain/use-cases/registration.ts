@@ -13,7 +13,7 @@ export const setRegistration: Setup = (usersRepo, hasher, tokenHandler) => async
     email,
     name,
     password: hashedPassword
-  })
-  const token = tokenHandler.generate({ key: id, expirationInMs: AccessToken.expirationInMs })
+  })// TODO remove hardcode role
+  const token = await tokenHandler.generate({ key: id, userRole: 'customer', expirationInMs: AccessToken.expirationInMs })
   return { name, token }
 }

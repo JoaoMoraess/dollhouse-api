@@ -15,9 +15,9 @@ describe('AuthenticationMiddleware', () => {
   })
 
   it('should call authorize with correct input', async () => {
-    await sut.handle({ authorization: 'any_authorization' })
+    await sut.handle({ authorization: 'any_token' })
 
-    expect(authorize).toHaveBeenCalledWith({ authorization: 'any_authorization' })
+    expect(authorize).toHaveBeenCalledWith({ token: 'any_token' })
   })
 
   it('should validate httpRequest correctly', async () => {
@@ -28,7 +28,7 @@ describe('AuthenticationMiddleware', () => {
   })
 
   it('should return the correct value on success', async () => {
-    const httpResonse = await sut.handle({ authorization: 'any_authorization' })
+    const httpResonse = await sut.handle({ authorization: 'any_token' })
 
     expect(httpResonse).toEqual(ok({ userId: 'any_user_id' }))
   })

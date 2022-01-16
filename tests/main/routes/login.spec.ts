@@ -103,7 +103,7 @@ describe('Product routes', () => {
       expect(statusCode).toBe(200)
       expect(body.name).toEqual('any_name')
       expect(body.token).toBeTruthy()
-      expect(savedUser?.role).toBeNull()
+      expect(savedUser?.role).toBe('customer')
     })
     it('should return unauthorized if email already registred', async () => {
       const password = await bcrypt.hash('any_password', 12)
