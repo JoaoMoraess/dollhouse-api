@@ -2,6 +2,8 @@ import { ChargePurchase } from '@/domain/contracts/gateways'
 import { AxiosHttpClient, PagSeguroApi } from '@/infra/gateways'
 import { env } from '@/main/config/env'
 
+jest.setTimeout(10000)
+
 describe('PagSeguroApi', () => {
   let bearerToken: string
   let axiosClient: AxiosHttpClient
@@ -27,7 +29,6 @@ describe('PagSeguroApi', () => {
 
   it('should charge with correct params', async () => {
     const { paymentResponse, id } = await sut.charge(input)
-
     expect(paymentResponse.message).toBe('SUCESSO')
     expect(id).toBeTruthy()
   })

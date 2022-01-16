@@ -36,7 +36,24 @@ describe('EffectPurchase route', () => {
   })
 
   describe('POST /purchase/effect', () => {
+    const pagseguroChargeSpy = jest.fn()
+    const correiosApiSpy = jest.fn()
+
+    jest.mock('@/infra/gateways/pagseguro-api', () => ({
+      PagSeguroApi: jest.fn().mockReturnValue({ charge: pagseguroChargeSpy })
+    }))
+
+    jest.mock('@/infra/gateways/correios-api', () => ({
+      CorreiosApi: jest.fn().mockReturnValue({ calc: correiosApiSpy })
+    }))
+
     it('should return 204 on success', async () => {
+      pagseguroChargeSpy.mockResolvedValueOnce({
+        paymentResponse: { message: 'SUCESSO', reference: 'any_reference', code: 'any_code' },
+        id: 'any_id'
+      })
+      correiosApiSpy.mockResolvedValueOnce(1209)
+
       const fakeProduct = {
         id: 'any_fake_id',
         imageUrl: 'any_fake_image',
