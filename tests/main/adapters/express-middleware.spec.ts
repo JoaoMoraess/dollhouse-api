@@ -10,7 +10,10 @@ interface Middleware {
 type Setup = (middleware: Middleware) => RequestHandler
 
 export const adaptExpressMiddleware: Setup = middleware => async (req, res, next) => {
-  const { data, statusCode } = await middleware.handle({ ...req.headers })
+  const { statusCode, data } = await middleware.handle({ ...req.headers })
+  if (statusCode !== 200) {
+    res.status(statusCode).json({ error: data.message })
+  }
 }
 
 describe('AdaptExpressMiddleware', () => {
@@ -37,5 +40,14 @@ describe('AdaptExpressMiddleware', () => {
     await sut(req, res, next)
 
     expect(middleware.handle).toHaveBeenCalledWith({ token: 'any_token' })
+  })
+  it('should return an error if middleware.handle returns 200', async () => {
+    middleware.handle.mockResolvedValueOnce({ data: { message: 'any_error' }, statusCode: 301 })
+    await sut(req, res, next)
+
+    expect(res.json).toHaveBeenCalledWith({ error: 'any_error' })
+    expect(res.json).toHaveBeenCalledTimes(1)
+    expect(res.status).toHaveBeenCalledWith(301)
+    expect(res.status).toHaveBeenCalledTimes(1)
   })
 })
