@@ -1,24 +1,8 @@
-import { HttpResponse } from '@/application/helpers'
+import { Middleware } from '@/application/contracts'
 import { getMockReq, getMockRes } from '@jest-mock/express'
 import { NextFunction, Request, RequestHandler, Response } from 'express'
 import { mock, MockProxy } from 'jest-mock-extended'
-
-interface Middleware {
-  handle: (httpRequest: any) => Promise<HttpResponse>
-}
-
-type Setup = (middleware: Middleware) => RequestHandler
-
-export const adaptExpressMiddleware: Setup = middleware => async (req, res, next) => {
-  const { statusCode, data } = await middleware.handle({ ...req.headers })
-  if (statusCode === 200) {
-    const validEntries = Object.entries(data).filter(([, value]) => value)
-    req.locals = { ...req.locals, ...Object.fromEntries(validEntries) }
-    next()
-  } else {
-    res.status(statusCode).json({ error: data.message })
-  }
-}
+import { adaptExpressMiddleware } from '@/main/adapters'
 
 describe('AdaptExpressMiddleware', () => {
   let sut: RequestHandler
@@ -58,7 +42,7 @@ describe('AdaptExpressMiddleware', () => {
     expect(res.status).toHaveBeenCalledTimes(1)
   })
   it('should return an error if middleware.handle returns 200', async () => {
-    middleware.handle.mockResolvedValueOnce({ data: { message: 'any_error' }, statusCode: 301 })
+    middleware.handle.mockResolvedValueOnce({ data: new Error('any_error'), statusCode: 301 })
     await sut(req, res, next)
 
     expect(res.json).toHaveBeenCalledWith({ error: 'any_error' })
