@@ -1,5 +1,5 @@
 import { LoadUserByEmail, SaveUser } from '@/domain/contracts/repos'
-import { AuthenticationModel, AccessToken } from '@/domain/entities'
+import { AuthenticationModel, AccessToken, UserRole } from '@/domain/entities'
 import { TokenGenerator, Hasher } from '@/domain/contracts/gateways'
 
 export type Registration = (input: {name: string, email: string, password: string}) => Promise<AuthenticationModel | null>
@@ -8,12 +8,13 @@ type Setup = (usersRepo: LoadUserByEmail & SaveUser, hasher: Hasher, tokenHandle
 export const setRegistration: Setup = (usersRepo, hasher, tokenHandler) => async ({ email, name, password }) => {
   const registredUser = await usersRepo.loadByEmail({ email })
   if (registredUser !== null && registredUser !== undefined) return null
+  const defaultRole: UserRole = 'customer'
   const hashedPassword = await hasher.hash({ plainText: password })
   const { id } = await usersRepo.save({
     email,
     name,
     password: hashedPassword
-  })// TODO remove hardcode role
-  const token = await tokenHandler.generate({ key: id, userRole: 'customer', expirationInMs: AccessToken.expirationInMs })
+  })
+  const token = await tokenHandler.generate({ key: id, userRole: defaultRole, expirationInMs: AccessToken.expirationInMs })
   return { name, token }
 }

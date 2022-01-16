@@ -13,11 +13,10 @@ export const setAuthentication: Setup = (
   const user = await usersRepo.loadByEmail({ email })
   if (user !== undefined && user !== null) {
     const isValidUser = await hashComparer.compare({ plainText: password, digest: user.password })
-    if (isValidUser) { // TODO remove hardcode role
-      const token = await tokenHandler.generate({ key: user.id, userRole: 'customer', expirationInMs: AccessToken.expirationInMs })
+    if (isValidUser) {
+      const token = await tokenHandler.generate({ key: user.id, userRole: user.role, expirationInMs: AccessToken.expirationInMs })
       return { name: user.name, token }
     }
   }
-
   return null
 }
