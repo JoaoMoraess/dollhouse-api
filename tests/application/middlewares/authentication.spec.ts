@@ -1,11 +1,14 @@
 import { RequiredString } from '@/application/validation'
+import { forbidden, HttpResponse, ok } from '@/application/helpers'
 
 class AuthenticationMiddleware {
   constructor (private readonly authorize: Authorize) {}
 
-  async handle ({ token }: HttpRequest): Promise<void> {
-    if (!this.validate({ token })) return
-    await this.authorize({ token })
+  async handle ({ token }: HttpRequest): Promise<HttpResponse> {
+    if (!this.validate({ token })) return forbidden()
+    const userId = await this.authorize({ token })
+
+    return ok({ userId })
   }
 
   private validate ({ token }: {token: string}): boolean {
@@ -34,9 +37,16 @@ describe('AuthenticationMiddleware', () => {
 
     expect(authorize).toHaveBeenCalledWith({ token: 'any_token' })
   })
+
   it('should validate httpRequest correctly', async () => {
-    await sut.handle({ token: null as any })
+    const httpResonse = await sut.handle({ token: null as any })
 
     expect(authorize).not.toHaveBeenCalled()
+    expect(httpResonse).toEqual(forbidden())
+  })
+  it('should return the correct value on success', async () => {
+    const httpResonse = await sut.handle({ token: 'any_token' })
+
+    expect(httpResonse).toEqual(ok({ userId: 'any_user_id' }))
   })
 })
