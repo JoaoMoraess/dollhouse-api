@@ -46,12 +46,14 @@ describe('JWTHandler', () => {
   })
   describe('validate()', () => {
     let token: string
+    let userRole: string
     let key: string
 
     beforeAll(() => {
       token = 'any_token'
       key = 'any_key'
-      fakeJwt.verify.mockImplementation(() => ({ key }))
+      userRole = 'customer'
+      fakeJwt.verify.mockImplementation(() => ({ key, userRole }))
     })
 
     it('should call verify with correct input', async () => {
@@ -64,7 +66,7 @@ describe('JWTHandler', () => {
     it('should return the key used to verify', async () => {
       const generatedKey = await sut.validate({ token })
 
-      expect(generatedKey).toBe(key)
+      expect(generatedKey).toEqual({ key, userRole })
     })
   })
 })

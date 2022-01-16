@@ -7,11 +7,11 @@ describe('AuthenticationMiddleware', () => {
 
   beforeAll(() => {
     authorize = jest.fn()
-    authorize.mockResolvedValue('any_user_id')
+    authorize.mockResolvedValue({ key: 'any_user_id', userRole: 'customer' })
   })
 
   beforeEach(() => {
-    sut = new AuthenticationMiddleware(authorize)
+    sut = new AuthenticationMiddleware(authorize, 'customer')
   })
 
   it('should call authorize with correct input', async () => {
