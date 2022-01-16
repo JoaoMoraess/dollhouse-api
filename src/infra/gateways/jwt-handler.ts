@@ -13,7 +13,7 @@ export class JWTHandler implements TokenGenerator {
   }
 
   async validate ({ token }: TokenValidator.Input): Promise<TokenValidator.Output> {
-    jwt.verify(token, this.secret)
-    return ''
+    const payload = jwt.verify(token, this.secret)
+    return payload.key
   }
 }

@@ -57,5 +57,11 @@ describe('JWTHandler', () => {
       expect(fakeJwt.verify).toHaveBeenCalledWith(token, secret)
       expect(fakeJwt.verify).toHaveBeenCalledTimes(1)
     })
+
+    it('should return the key used to verify', async () => {
+      const generatedKey = await sut.validate({ token })
+
+      expect(generatedKey).toBe(key)
+    })
   })
 })
