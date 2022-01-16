@@ -46,4 +46,10 @@ describe('AuthenticationMiddleware', () => {
 
     expect(httpResonse).toEqual(forbidden())
   })
+  it('should not return forbiden if authorize return admin role', async () => {
+    authorize.mockResolvedValueOnce({ key: 'any_user_id', userRole: 'admin' })
+    const httpResonse = await sut.handle({ authorization: 'any_authorization' })
+
+    expect(httpResonse).toEqual(ok({ userId: 'any_user_id' }))
+  })
 })
