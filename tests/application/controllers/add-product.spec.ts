@@ -1,6 +1,6 @@
 import { Controller } from '@/application/controllers/controller'
 import { HttpResponse } from '@/application/helpers'
-import { Validator, RequiredString, NumberLength, RequiredNumber } from '@/application/validation'
+import { Validator, RequiredString, MaxFileSize, NumberLength, RequiredNumber } from '@/application/validation'
 import { ValidationBuilder } from '@/application/validation/builder'
 
 class AddProductController extends Controller {
@@ -11,12 +11,13 @@ class AddProductController extends Controller {
     }
   }
 
-  override buildValidators ({ name, price, stock }: any): Validator[] {
+  override buildValidators ({ name, price, stock, imageFile }: any): Validator[] {
     return [
       ...ValidationBuilder.of({ fieldValue: name, fieldName: 'name' }).required().build(),
       ...ValidationBuilder.of({ fieldValue: price, fieldName: 'price' }).required().minNumber(0).build(),
-      ...ValidationBuilder.of({ fieldValue: stock, fieldName: 'stock' }).required().minNumber(0).build()
-    ]
+      ...ValidationBuilder.of({ fieldValue: stock, fieldName: 'stock' }).required().minNumber(0).build(),
+      ...ValidationBuilder.of({ fieldValue: imageFile, fieldName: 'imageFile' }).image(1).build()
+    ]// TODO make a requiredBuffer validator to imageFile field
   }
 }
 
@@ -28,7 +29,8 @@ describe('AddProductsController', () => {
     httpRequest = {
       name: 'pencil',
       price: 1290,
-      stock: 5
+      stock: 5,
+      imageFile: Buffer.from(new ArrayBuffer(1 * 1024))
     }
     sut = new AddProductController()
   })
@@ -44,7 +46,8 @@ describe('AddProductsController', () => {
       new RequiredNumber(httpRequest.price, 'price'),
       new NumberLength(httpRequest.price, 'min', 0, 'price'),
       new RequiredNumber(httpRequest.stock, 'stock'),
-      new NumberLength(httpRequest.stock, 'min', 0, 'stock')
+      new NumberLength(httpRequest.stock, 'min', 0, 'stock'),
+      new MaxFileSize(1, httpRequest.imageFile)
     ])
   })
 })
