@@ -15,10 +15,26 @@ class MaxFileSize implements Validator {
 describe('MaxFileSize', () => {
   it('should return MaxFileSizeError if value is invalid', async () => {
     const invalidBuffer = Buffer.from(new ArrayBuffer(9 * 1024 * 1024))
-    const sut = new MaxFileSize(5, invalidBuffer)
+    const sut = new MaxFileSize(4, invalidBuffer)
 
     const error = sut.validate()
 
     expect(error).toEqual(new Error('MaxFileSizeError'))
+  })
+  it('should return undefined if value is valid', async () => {
+    const invalidBuffer = Buffer.from(new ArrayBuffer(3 * 1024 * 1024))
+    const sut = new MaxFileSize(4, invalidBuffer)
+
+    const error = sut.validate()
+
+    expect(error).toBeUndefined()
+  })
+  it('should return undefined if value is valid', async () => {
+    const invalidBuffer = Buffer.from(new ArrayBuffer(4 * 1024 * 1024))
+    const sut = new MaxFileSize(4, invalidBuffer)
+
+    const error = sut.validate()
+
+    expect(error).toBeUndefined()
   })
 })
