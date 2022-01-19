@@ -17,3 +17,10 @@ export class InvalidFieldError extends Error {
     this.name = 'InvalidFieldError'
   }
 }
+export class MaxFileSizeError extends Error {
+  constructor (maxSizeInMb: number) {
+    const message = `Tamanho maximo de arquivo ${maxSizeInMb}Mb`
+    super(message)
+    this.name = 'MaxFileSizeError'
+  }
+}

@@ -1,24 +1,5 @@
-import { Validator } from '@/application/validation'
-
-class MaxFileSizeError extends Error {
-  constructor (maxSizeInMb: number) {
-    const message = `Tamanho maximo de arquivo ${maxSizeInMb}Mb`
-    super(message)
-    this.name = 'MaxFileSizeError'
-  }
-}
-
-class MaxFileSize implements Validator {
-  constructor (
-    private readonly maxSizeInMb: number,
-    private readonly file: Buffer
-  ) {}
-
-  validate (): Error | undefined {
-    const maxSizeInBytes = (this.maxSizeInMb * 1024 * 1024)
-    if (this.file.length > maxSizeInBytes) return new MaxFileSizeError(this.maxSizeInMb)
-  }
-}
+import { MaxFileSize } from '@/application/validation'
+import { MaxFileSizeError } from '@/application/errors'
 
 describe('MaxFileSize', () => {
   it('should return MaxFileSizeError if value is invalid', async () => {
