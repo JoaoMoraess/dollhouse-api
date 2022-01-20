@@ -1,4 +1,4 @@
-import { Email, FieldToCompare, MaxFileSize, NumberLength, Required, RequiredNumber, RequiredString, Validator } from '.'
+import { Email, FieldToCompare, MaxFileSize, NumberLength, Required, RequiredBuffer, RequiredNumber, RequiredString, Validator } from '.'
 
 export class ValidationBuilder {
   private constructor (
@@ -17,7 +17,11 @@ export class ValidationBuilder {
     } else if (typeof this.fieldValue === 'number') {
       this.validators.push(new RequiredNumber(this.fieldValue, this.fieldName))
     } else {
-      this.validators.push(new Required(this.fieldValue, this.fieldName))
+      if (this.fieldValue.buffer !== undefined) {
+        this.validators.push(new RequiredBuffer(this.fieldValue.buffer, this.fieldName))
+      } else {
+        this.validators.push(new Required(this.fieldValue, this.fieldName))
+      }
     }
     return this
   }
@@ -42,8 +46,8 @@ export class ValidationBuilder {
     return this
   }
 
-  image (maxSize: number): ValidationBuilder {
-    this.validators.push(new MaxFileSize(maxSize, this.fieldValue))
+  image ({ maxSizeInMb }: {maxSizeInMb: number}): ValidationBuilder {
+    this.validators.push(new MaxFileSize(maxSizeInMb, this.fieldValue.buffer))
     return this
   }
 

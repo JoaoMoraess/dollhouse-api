@@ -16,7 +16,7 @@ class AddProductController extends Controller {
       ...ValidationBuilder.of({ fieldValue: name, fieldName: 'name' }).required().build(),
       ...ValidationBuilder.of({ fieldValue: price, fieldName: 'price' }).required().minNumber(0).build(),
       ...ValidationBuilder.of({ fieldValue: stock, fieldName: 'stock' }).required().minNumber(0).build(),
-      ...ValidationBuilder.of({ fieldValue: imageFile, fieldName: 'imageFile' }).image(1).build()
+      ...ValidationBuilder.of({ fieldValue: { buffer: imageFile }, fieldName: 'imageFile' }).image({ maxSizeInMb: 1 }).build()
     ]// TODO make a requiredBuffer validator to imageFile field
   }// TODO make a extension validation to imageFile field
 }
