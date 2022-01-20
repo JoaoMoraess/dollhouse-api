@@ -14,6 +14,21 @@ export class Required implements Validator {
   }
 }
 
+export class RequiredBuffer extends Required {
+  constructor (
+    override readonly fieldValue: Buffer,
+    override readonly fieldName?: string
+  ) {
+    super(fieldValue, fieldName)
+  }
+
+  override validate (): Error | undefined {
+    if (super.validate() !== undefined || this.fieldValue.length === 0) {
+      return new RequiredFieldError(this.fieldName)
+    }
+  }
+}
+
 export class RequiredString extends Required {
   constructor (
     override readonly fieldValue: string,
