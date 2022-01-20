@@ -1,8 +1,8 @@
 export class RequiredFieldError extends Error {
   constructor (field?: string) {
     const message = field === undefined
-      ? 'Field required'
-      : `The field ${field} is required`
+      ? 'Campo invalido!'
+      : `O campo ${field} esta invalido!`
     super(message)
     this.name = 'RequiredFieldError'
   }
@@ -11,8 +11,8 @@ export class RequiredFieldError extends Error {
 export class InvalidFieldError extends Error {
   constructor (field?: string) {
     const message = field === undefined
-      ? 'Field invalid!'
-      : `The field ${field} is invalid!`
+      ? 'Campo invalido!'
+      : `O campo ${field} esta invalido!`
     super(message)
     this.name = 'InvalidFieldError'
   }
@@ -22,5 +22,12 @@ export class MaxFileSizeError extends Error {
     const message = `Tamanho maximo de arquivo ${maxSizeInMb}Mb`
     super(message)
     this.name = 'MaxFileSizeError'
+  }
+}
+
+export class InvalidMimeTypeError extends Error {
+  constructor (allowed: string[]) {
+    super(`Arquivo nao suportado. tipo suportado: ${allowed.join(', ')}`)
+    this.name = 'InvalidMimeTypeError'
   }
 }

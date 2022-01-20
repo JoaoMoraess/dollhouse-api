@@ -1,27 +1,5 @@
-
-type Extension = 'png' | 'jpg'
-
-class AllowedMimeTypes {
-  constructor (
-    private readonly allowed: Extension[],
-    private readonly mimeType: string
-  ) {}
-
-  validate (): Error | undefined {
-    let isValid = false
-    if (this.isPng()) isValid = true
-    else if (this.isJpg()) isValid = true
-    if (!isValid) return new Error('Invalid mime type')
-  }
-
-  private isPng (): boolean {
-    return this.allowed.includes('png') && this.mimeType === 'image/png'
-  }
-
-  private isJpg (): boolean {
-    return this.allowed.includes('jpg') && /image\/jpe?g/.test(this.mimeType)
-  }
-}
+import { AllowedMimeTypes } from '@/application/validation'
+import { InvalidMimeTypeError } from '@/application/errors'
 
 describe('AllowedMimeTypes', () => {
   it('should return InvalidMimeTypeError if type is invalid', () => {
@@ -29,7 +7,7 @@ describe('AllowedMimeTypes', () => {
 
     const error = sut.validate()
 
-    expect(error).toEqual(new Error('Invalid mime type'))
+    expect(error).toEqual(new InvalidMimeTypeError(['jpg']))
   })
 
   it('should return undefined if value is valid', () => {
