@@ -1,4 +1,4 @@
-> # API param E-comerce feita com node js
+> # API para E-comerce feita com node js
 
 [![alt text](./public/img/hero.png "Imagem do projeto")]
 
