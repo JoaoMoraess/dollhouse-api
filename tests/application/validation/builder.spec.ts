@@ -1,4 +1,4 @@
-import { Required, MaxFileSize, RequiredBuffer, RequiredNumber, RequiredString, ValidationBuilder, Email } from '@/application/validation'
+import { Required, AllowedMimeTypes, MaxFileSize, RequiredBuffer, RequiredNumber, RequiredString, ValidationBuilder, Email } from '@/application/validation'
 
 describe('ValidationBuilder', () => {
   it('should return RequiredString', () => {
@@ -42,15 +42,23 @@ describe('ValidationBuilder', () => {
     const file = Buffer.from(new ArrayBuffer(1 * 1024 * 1024))
     const validators = ValidationBuilder
       .of({ fieldValue: { buffer: file } })
-      .image({ maxSizeInMb: 1 })
+      .image({ maxSizeInMb: 1, allowed: [] })
       .build()
     expect(validators).toEqual([new MaxFileSize(1, file)])
   })
   it('should not return MaxFileSize if value.buffer is undefined', () => {
     const validators = ValidationBuilder
       .of({ fieldValue: { buffer: undefined } })
-      .image({ maxSizeInMb: 1 })
+      .image({ maxSizeInMb: 1, allowed: [] })
       .build()
     expect(validators).toEqual([])
+  })
+  it('should return AllowedMimeType', () => {
+    const file = Buffer.from(new ArrayBuffer(1 * 1024 * 1024))
+    const validators = ValidationBuilder
+      .of({ fieldValue: { buffer: file, mimeType: 'png' } })
+      .image({ maxSizeInMb: 1, allowed: ['png'] })
+      .build()
+    expect(validators).toEqual([new MaxFileSize(1, file), new AllowedMimeTypes(['png'], 'png')])
   })
 })

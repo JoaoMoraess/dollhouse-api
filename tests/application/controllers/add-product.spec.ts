@@ -1,13 +1,13 @@
 import { Controller } from '@/application/controllers/controller'
 import { HttpResponse } from '@/application/helpers'
-import { Validator, RequiredString, RequiredBuffer, MaxFileSize, NumberLength, RequiredNumber } from '@/application/validation'
+import { Validator, RequiredString, RequiredBuffer, AllowedMimeTypes, MaxFileSize, NumberLength, RequiredNumber } from '@/application/validation'
 import { ValidationBuilder } from '@/application/validation/builder'
 
 type HttpRequrest = {
   name: string
   price: number
   stock: number
-  imageFile: { buffer: Buffer }
+  imageFile: { buffer: Buffer, mimeType: string }
 }
 
 class AddProductController extends Controller {
@@ -23,7 +23,7 @@ class AddProductController extends Controller {
       ...ValidationBuilder.of({ fieldValue: name, fieldName: 'name' }).required().build(),
       ...ValidationBuilder.of({ fieldValue: price, fieldName: 'price' }).required().minNumber(0).build(),
       ...ValidationBuilder.of({ fieldValue: stock, fieldName: 'stock' }).required().minNumber(0).build(),
-      ...ValidationBuilder.of({ fieldValue: imageFile, fieldName: 'imageFile' }).required().image({ maxSizeInMb: 1 }).build()
+      ...ValidationBuilder.of({ fieldValue: imageFile, fieldName: 'imageFile' }).required().image({ maxSizeInMb: 1, allowed: ['jpg', 'png'] }).build()
     ]
   }// TODO make a extension validation to imageFile field
 }
@@ -37,7 +37,7 @@ describe('AddProductsController', () => {
       name: 'pencil',
       price: 1290,
       stock: 5,
-      imageFile: { buffer: Buffer.from(new ArrayBuffer(1 * 1024)) }
+      imageFile: { buffer: Buffer.from(new ArrayBuffer(1 * 1024)), mimeType: 'jpg' }
     }
     sut = new AddProductController()
   })
@@ -55,7 +55,8 @@ describe('AddProductsController', () => {
       new RequiredNumber(httpRequest.stock, 'stock'),
       new NumberLength(httpRequest.stock, 'min', 0, 'stock'),
       new RequiredBuffer(httpRequest.imageFile.buffer, 'imageFile'),
-      new MaxFileSize(1, httpRequest.imageFile.buffer)
+      new MaxFileSize(1, httpRequest.imageFile.buffer),
+      new AllowedMimeTypes(['jpg', 'png'], 'jpg')
     ])
   })
 })
