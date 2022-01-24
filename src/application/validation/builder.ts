@@ -47,7 +47,9 @@ export class ValidationBuilder {
   }
 
   image ({ maxSizeInMb }: {maxSizeInMb: number}): ValidationBuilder {
-    this.validators.push(new MaxFileSize(maxSizeInMb, this.fieldValue.buffer))
+    if (this.fieldValue.buffer !== undefined) {
+      this.validators.push(new MaxFileSize(maxSizeInMb, this.fieldValue.buffer))
+    }
     return this
   }
 

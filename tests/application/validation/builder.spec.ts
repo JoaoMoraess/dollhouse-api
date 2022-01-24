@@ -46,4 +46,11 @@ describe('ValidationBuilder', () => {
       .build()
     expect(validators).toEqual([new MaxFileSize(1, file)])
   })
+  it('should not return MaxFileSize if value.buffer is undefined', () => {
+    const validators = ValidationBuilder
+      .of({ fieldValue: { buffer: undefined } })
+      .image({ maxSizeInMb: 1 })
+      .build()
+    expect(validators).toEqual([])
+  })
 })
