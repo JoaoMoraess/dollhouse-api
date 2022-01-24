@@ -3,43 +3,56 @@ import { HttpResponse } from '@/application/helpers'
 import { Validator, RequiredString, RequiredBuffer, AllowedMimeTypes, MaxFileSize, NumberLength, RequiredNumber } from '@/application/validation'
 import { ValidationBuilder } from '@/application/validation/builder'
 
-type HttpRequrest = {
+type HttpRequest = {
   name: string
   price: number
   stock: number
   imageFile: { buffer: Buffer, mimeType: string }
 }
 
+type AddProduct = (input: HttpRequest) => Promise<void>
+
 class AddProductController extends Controller {
-  override async perform (httpRequest: HttpRequrest): Promise<HttpResponse<any>> {
+  constructor (
+    private readonly addProduct: AddProduct
+  ) { super() }
+
+  override async perform (httpRequest: HttpRequest): Promise<HttpResponse<any>> {
+    const { imageFile, name, price, stock } = httpRequest
+    await this.addProduct({ imageFile, name, price, stock })
     return {
       data: {},
       statusCode: 200
     }
   }
 
-  override buildValidators ({ name, price, stock, imageFile }: HttpRequrest): Validator[] {
+  override buildValidators ({ name, price, stock, imageFile }: HttpRequest): Validator[] {
     return [
       ...ValidationBuilder.of({ fieldValue: name, fieldName: 'name' }).required().build(),
       ...ValidationBuilder.of({ fieldValue: price, fieldName: 'price' }).required().minNumber(0).build(),
       ...ValidationBuilder.of({ fieldValue: stock, fieldName: 'stock' }).required().minNumber(0).build(),
       ...ValidationBuilder.of({ fieldValue: imageFile, fieldName: 'imageFile' }).required().image({ maxSizeInMb: 1, allowed: ['jpg', 'png'] }).build()
     ]
-  }// TODO make a extension validation to imageFile field
+  }
 }
 
 describe('AddProductsController', () => {
   let sut: AddProductController
-  let httpRequest: HttpRequrest
+  let httpRequest: HttpRequest
+  let addProduct: jest.Mock
+
+  beforeAll(() => {
+    addProduct = jest.fn()
+  })
 
   beforeEach(() => {
     httpRequest = {
       name: 'pencil',
       price: 1290,
       stock: 5,
-      imageFile: { buffer: Buffer.from(new ArrayBuffer(1 * 1024)), mimeType: 'jpg' }
+      imageFile: { buffer: Buffer.from(new ArrayBuffer(1 * 1024)), mimeType: 'image/jpg' }
     }
-    sut = new AddProductController()
+    sut = new AddProductController(addProduct)
   })
 
   it('should extend controller', async () => {
@@ -56,7 +69,14 @@ describe('AddProductsController', () => {
       new NumberLength(httpRequest.stock, 'min', 0, 'stock'),
       new RequiredBuffer(httpRequest.imageFile.buffer, 'imageFile'),
       new MaxFileSize(1, httpRequest.imageFile.buffer),
-      new AllowedMimeTypes(['jpg', 'png'], 'jpg')
+      new AllowedMimeTypes(['jpg', 'png'], 'image/jpg')
     ])
+  })
+
+  it('should call addProduct with correct values', async () => {
+    await sut.handle(httpRequest)
+
+    expect(addProduct).toHaveBeenCalledWith({ ...httpRequest })
+    expect(addProduct).toHaveBeenCalledTimes(1)
   })
 })
