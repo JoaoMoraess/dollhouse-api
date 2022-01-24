@@ -1,6 +1,6 @@
 > # API para E-comerce feita com node js
 
-[![alt text](./public/img/hero.png "Imagem do projeto")]
+![alt text](./public/img/hero.png "Imagem do projeto")
 
 ## Principios
 * ### SOLID
