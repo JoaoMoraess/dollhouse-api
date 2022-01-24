@@ -1,36 +1,13 @@
 import { Controller } from '@/application/controllers/controller'
-import { HttpResponse, noContent } from '@/application/helpers'
-import { Validator, RequiredString, RequiredBuffer, AllowedMimeTypes, MaxFileSize, NumberLength, RequiredNumber } from '@/application/validation'
-import { ValidationBuilder } from '@/application/validation/builder'
+import { noContent } from '@/application/helpers'
+import { RequiredString, RequiredBuffer, AllowedMimeTypes, MaxFileSize, NumberLength, RequiredNumber } from '@/application/validation'
+import { AddProductController } from '@/application/controllers'
 
 type HttpRequest = {
   name: string
   price: number
   stock: number
   imageFile: { buffer: Buffer, mimeType: string }
-}
-
-type AddProduct = (input: HttpRequest) => Promise<void>
-
-class AddProductController extends Controller {
-  constructor (
-    private readonly addProduct: AddProduct
-  ) { super() }
-
-  override async perform (httpRequest: HttpRequest): Promise<HttpResponse<any>> {
-    const { imageFile, name, price, stock } = httpRequest
-    await this.addProduct({ imageFile, name, price, stock })
-    return noContent()
-  }
-
-  override buildValidators ({ name, price, stock, imageFile }: HttpRequest): Validator[] {
-    return [
-      ...ValidationBuilder.of({ fieldValue: name, fieldName: 'name' }).required().build(),
-      ...ValidationBuilder.of({ fieldValue: price, fieldName: 'price' }).required().minNumber(0).build(),
-      ...ValidationBuilder.of({ fieldValue: stock, fieldName: 'stock' }).required().minNumber(0).build(),
-      ...ValidationBuilder.of({ fieldValue: imageFile, fieldName: 'imageFile' }).required().image({ maxSizeInMb: 1, allowed: ['jpg', 'png'] }).build()
-    ]
-  }
 }
 
 describe('AddProductsController', () => {
