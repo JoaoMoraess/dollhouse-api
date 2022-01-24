@@ -1,5 +1,5 @@
 import { Controller } from '@/application/controllers/controller'
-import { HttpResponse } from '@/application/helpers'
+import { HttpResponse, noContent } from '@/application/helpers'
 import { Validator, RequiredString, RequiredBuffer, AllowedMimeTypes, MaxFileSize, NumberLength, RequiredNumber } from '@/application/validation'
 import { ValidationBuilder } from '@/application/validation/builder'
 
@@ -20,10 +20,7 @@ class AddProductController extends Controller {
   override async perform (httpRequest: HttpRequest): Promise<HttpResponse<any>> {
     const { imageFile, name, price, stock } = httpRequest
     await this.addProduct({ imageFile, name, price, stock })
-    return {
-      data: {},
-      statusCode: 200
-    }
+    return noContent()
   }
 
   override buildValidators ({ name, price, stock, imageFile }: HttpRequest): Validator[] {
@@ -78,5 +75,10 @@ describe('AddProductsController', () => {
 
     expect(addProduct).toHaveBeenCalledWith({ ...httpRequest })
     expect(addProduct).toHaveBeenCalledTimes(1)
+  })
+  it('should return noContent on success', async () => {
+    const httpResponse = await sut.handle(httpRequest)
+
+    expect(httpResponse).toEqual(noContent())
   })
 })
