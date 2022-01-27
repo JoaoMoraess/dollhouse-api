@@ -6,12 +6,17 @@ describe('LoadProducts', () => {
   let productsRepo: MockProxy<any>
   let limit: number
   let offset: number
+  let orderBy: string
+  let sortBy: string
 
   beforeEach(() => {
     limit = 10
     offset = 0
+    orderBy = 'ASC'
+    sortBy = 'id'
     productsRepo = mock()
-    productsRepo.loadByOffset.mockResolvedValue(
+    productsRepo.countTotal.mockResolvedValue(100)
+    productsRepo.load.mockResolvedValue(
       [{
         id: 'any_id',
         name: 'any_name',
@@ -32,20 +37,34 @@ describe('LoadProducts', () => {
     sut = setupLoadProducts(productsRepo)
   })
 
-  it('should call loadProductsByOffset with correct input', async () => {
-    await sut({ limit, offset })
+  it('should call LoadProducts with correct input', async () => {
+    await sut({ limit, offset, orderBy, sortBy })
 
-    expect(productsRepo.loadByOffset).toHaveBeenCalledWith({ limit, offset })
-    expect(productsRepo.loadByOffset).toHaveBeenCalledTimes(1)
+    expect(productsRepo.load).toHaveBeenCalledWith({ limit, offset, orderBy, sortBy })
+    expect(productsRepo.load).toHaveBeenCalledTimes(1)
   })
-  it('should rethrow productsRepo throw', async () => {
-    productsRepo.loadByOffset.mockRejectedValueOnce(new Error('load_error'))
-    const promise = sut({ limit, offset })
+  it('should call CountTotalProducts', async () => {
+    await sut({ limit, offset, orderBy, sortBy })
+
+    expect(productsRepo.countTotal).toHaveBeenCalled()
+    expect(productsRepo.countTotal).toHaveBeenCalledTimes(1)
+  })
+  it('should rethrow productsRepo.load throw', async () => {
+    productsRepo.load.mockRejectedValueOnce(new Error('load_error'))
+    const promise = sut({ limit, offset, orderBy, sortBy })
 
     await expect(promise).rejects.toThrow(new Error('load_error'))
   })
+  it('should rethrow productsRepo.countTotal throw', async () => {
+    productsRepo.countTotal.mockRejectedValueOnce(new Error('count_error'))
+    const promise = sut({ limit, offset, orderBy, sortBy })
+
+    await expect(promise).rejects.toThrow(new Error('count_error'))
+  })
   it('should return the correct data on success', async () => {
-    const { products } = await sut({ limit, offset })
+    const { products, totalProductsCount } = await sut({ limit, offset, orderBy, sortBy })
+
+    expect(totalProductsCount).toBe(100)
 
     expect(products).toEqual([{
       id: 'any_id',

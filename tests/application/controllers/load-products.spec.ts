@@ -7,10 +7,14 @@ describe('LoadProductsController', () => {
   let loadProducts: LoadProducts
   let limit: string
   let offset: string
+  let orderBy: string
+  let sortBy: string
 
   beforeAll(() => {
     limit = '10'
     offset = '0'
+    orderBy = 'ASC'
+    sortBy = 'id'
     loadProducts = jest.fn().mockResolvedValue({
       products: [{
         id: 'any_id',
@@ -37,25 +41,27 @@ describe('LoadProductsController', () => {
   })
 
   it('should build validatos correctly on save', async () => {
-    const validators = sut.buildValidators({ limit, offset })
+    const validators = sut.buildValidators({ limit, offset, orderBy, sortBy })
 
     expect(validators).toEqual([
       new Required(limit, 'limit'),
-      new Required(offset, 'offset')
+      new Required(offset, 'offset'),
+      new Required(orderBy, 'orderBy'),
+      new Required(sortBy, 'sortBy')
     ])
   })
 
   it('should call loadProducts with correct input', async () => {
-    await sut.handle({ limit, offset })
+    await sut.handle({ limit, offset, orderBy, sortBy })
 
     const numberLimit = Number(limit)
     const numberOffset = Number(offset)
 
-    expect(loadProducts).toHaveBeenCalledWith({ limit: numberLimit, offset: numberOffset })
+    expect(loadProducts).toHaveBeenCalledWith({ limit: numberLimit, offset: numberOffset, orderBy, sortBy })
     expect(loadProducts).toHaveBeenCalledTimes(1)
   })
   it('should return 200 with valida data', async () => {
-    const httpResponse = await sut.handle({ limit, offset })
+    const httpResponse = await sut.handle({ limit, offset, orderBy, sortBy })
     expect(httpResponse).toEqual({
       statusCode: 200,
       data: {
