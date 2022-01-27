@@ -48,10 +48,10 @@ describe('Product routes', () => {
 
       const { statusCode, body } = await request(configApp({ orm: ormStub, storage }))
         .get('/api/products')
-        .send({ limit: 2, offset: 0 })
+        .send({ limit: 2, offset: 0, orderBy: 'ASC', sortBy: 'id' })
 
       expect(statusCode).toBe(200)
-      expect(body).toEqual({ products: [fakeProduct] })
+      expect(body).toEqual({ products: [fakeProduct], totalCount: 1 })
     })
   })
 })
