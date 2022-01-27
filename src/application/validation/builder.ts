@@ -17,7 +17,7 @@ export class ValidationBuilder {
     } else if (typeof this.fieldValue === 'number') {
       this.validators.push(new RequiredNumber(this.fieldValue, this.fieldName))
     } else {
-      if (this.fieldValue.buffer !== undefined) {
+      if (this.fieldValue?.buffer !== undefined) {
         this.validators.push(new RequiredBuffer(this.fieldValue.buffer, this.fieldName))
       } else {
         this.validators.push(new Required(this.fieldValue, this.fieldName))
