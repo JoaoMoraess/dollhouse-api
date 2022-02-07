@@ -4,22 +4,43 @@ jest.mock('uuid', () => ({
   v4: jest.fn(() => 'any_uuid')
 }))
 
-class UUIdHandler {
-  generate (): string {
-    const id = v4()
-    return id
+interface UUIDGenerator {
+  generate: (input: UUIDGenerator.Input) => UUIDGenerator.Output
+}
+
+namespace UUIDGenerator {
+  export type Input = {
+    key: string
+  }
+  export type Output = string
+}
+
+class UUIdHandler implements UUIDGenerator {
+  generate ({ key }: UUIDGenerator.Input): UUIDGenerator.Output {
+    const uuid = v4()
+    return `${key}_${uuid}`
   }
 }
 
 describe('UUidHandler', () => {
+  let key: string
+  let sut: UUIdHandler
+
+  beforeEach(() => {
+    sut = new UUIdHandler()
+  })
+
+  beforeAll(() => {
+    key = 'any_key'
+  })
+
   it('should call v4', () => {
-    const uuidHandler = new UUIdHandler()
-    uuidHandler.generate()
+    sut.generate({ key })
     expect(v4).toHaveBeenCalled()
   })
+
   it('should return the correct value', () => {
-    const uuidHandler = new UUIdHandler()
-    const id = uuidHandler.generate()
-    expect(id).toBe('any_uuid')
+    const id = sut.generate({ key })
+    expect(id).toBe(`${key}_any_uuid`)
   })
 })
