@@ -2,7 +2,7 @@ import { mock, MockProxy } from 'jest-mock-extended'
 import { LoadUserByEmail, SaveUser } from '@/domain/contracts/repos'
 import { AccessToken } from '@/domain/entities'
 import { TokenGenerator, Hasher } from '@/domain/contracts/gateways'
-import { Registration, setRegistration } from '@/domain/use-cases'
+import { Registration, setupRegistration } from '@/domain/use-cases'
 
 describe('Registration', () => {
   let sut: Registration
@@ -27,7 +27,7 @@ describe('Registration', () => {
     name = 'any_name'
     email = 'any_email@gmail.com'
     password = 'any_password'
-    sut = setRegistration(usersRepo, hasher, tokenHandler)
+    sut = setupRegistration(usersRepo, hasher, tokenHandler)
   })
 
   it('should call usersRepo.loadByEmail with correct input', async () => {

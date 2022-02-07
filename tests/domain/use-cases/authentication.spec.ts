@@ -1,5 +1,5 @@
 import { mock, MockProxy } from 'jest-mock-extended'
-import { Authentication, setAuthentication } from '@/domain/use-cases'
+import { Authentication, setupAuthentication } from '@/domain/use-cases'
 import { LoadUserByEmail } from '@/domain/contracts/repos'
 import { HashComparer, TokenGenerator } from '@/domain/contracts/gateways'
 import { AccessToken } from '@/domain/entities'
@@ -28,7 +28,7 @@ describe('Authentication', () => {
   beforeEach(() => {
     email = 'any_email@gmail.com'
     password = 'any_password'
-    sut = setAuthentication(usersRepo, hashComparer, tokenHandler)
+    sut = setupAuthentication(usersRepo, hashComparer, tokenHandler)
   })
 
   it('should call usersRepo.loadByEmail with correct input', async () => {

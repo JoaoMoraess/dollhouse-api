@@ -6,7 +6,7 @@ type Input = {name: string, price: number, description?: string, imageFile: Buff
 export type AddProduct = (product: Input) => Promise<void>
 type Setup = (uuidHandler: UUIdHandler, fileStorage: UploadFile & DeleteFile, productRepo: SaveProduct) => AddProduct
 
-export const setAddProduct: Setup = (uuidHandler, fileStorage, productRepo) => async ({ stock, description, imageFile, name, price }) => {
+export const setupAddProduct: Setup = (uuidHandler, fileStorage, productRepo) => async ({ stock, description, imageFile, name, price }) => {
   const fileName = uuidHandler.generate(name)
   const imageUrl = await fileStorage.upload({ file: imageFile, fileName })
   try {

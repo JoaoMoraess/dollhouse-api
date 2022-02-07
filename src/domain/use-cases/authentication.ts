@@ -5,7 +5,7 @@ import { AccessToken } from '@/domain/entities'
 type Setup = (usersRepo: LoadUserByEmail, hashComparer: HashComparer, tokenHandler: TokenGenerator) => Authentication
 export type Authentication = (input: { email: string, password: string }) => Promise<{name: string, token: string} | null>
 
-export const setAuthentication: Setup = (
+export const setupAuthentication: Setup = (
   usersRepo,
   hashComparer,
   tokenHandler

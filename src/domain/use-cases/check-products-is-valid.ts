@@ -4,9 +4,9 @@ import { InvalidCartError, NoLongerInStock } from '@/domain/errors'
 
 export type ValidateProducts = (input: { localProducts: LocalProducts }) => Promise<Error | null>
 
-type SetValidateProducts = (productsRepo: LoadProductsByIds) => ValidateProducts
+type Setup = (productsRepo: LoadProductsByIds) => ValidateProducts
 
-export const setValidateProducts: SetValidateProducts = (productsRepo) => async ({ localProducts }) => {
+export const setupValidateProducts: Setup = (productsRepo) => async ({ localProducts }) => {
   const ids = Object.keys(localProducts)
   const products = await productsRepo.loadByIds(ids)
   if (products.length !== ids.length) return new InvalidCartError()

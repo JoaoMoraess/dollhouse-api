@@ -1,6 +1,6 @@
 import { UUIdHandler } from '@/infra/gateways'
 import { mock, MockProxy } from 'jest-mock-extended'
-import { AddProduct, setAddProduct } from '@/domain/use-cases'
+import { AddProduct, setupAddProduct } from '@/domain/use-cases'
 import { DeleteFile, UploadFile } from '@/domain/contracts/gateways'
 import { SaveProduct } from '@/domain/contracts/repos'
 
@@ -29,7 +29,7 @@ describe('AddProduct', () => {
   })
 
   beforeEach(() => {
-    sut = setAddProduct(uuidHandler, fileStorage, productRepo)
+    sut = setupAddProduct(uuidHandler, fileStorage, productRepo)
   })
 
   it('should call uuidHandler with correct key', async () => {

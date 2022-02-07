@@ -5,7 +5,7 @@ import { TokenGenerator, Hasher } from '@/domain/contracts/gateways'
 export type Registration = (input: {name: string, email: string, password: string}) => Promise<AuthenticationModel | null>
 type Setup = (usersRepo: LoadUserByEmail & SaveUser, hasher: Hasher, tokenHandler: TokenGenerator) => Registration
 
-export const setRegistration: Setup = (usersRepo, hasher, tokenHandler) => async ({ email, name, password }) => {
+export const setupRegistration: Setup = (usersRepo, hasher, tokenHandler) => async ({ email, name, password }) => {
   const registredUser = await usersRepo.loadByEmail({ email })
   if (registredUser !== null && registredUser !== undefined) return null
   const defaultRole: UserRole = 'customer'
