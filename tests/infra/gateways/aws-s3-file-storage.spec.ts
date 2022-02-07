@@ -100,12 +100,21 @@ describe('AWSS3FileStorage', () => {
 
     it('should call deleteObject with correct input', async () => {
       await sut.delete({ fileName })
+
       expect(deleteObjectSpy).toHaveBeenCalledWith({
         Bucket: bucketName,
         Key: fileName
       })
       expect(deleteObjectSpy).toHaveBeenCalledTimes(1)
       expect(deleteObjectPromiseSpy).toHaveBeenCalledTimes(1)
+    })
+
+    it('should rethrow if deleteObject throws', async () => {
+      deleteObjectPromiseSpy.mockRejectedValueOnce(new Error('any_error'))
+
+      const promise = sut.delete({ fileName })
+
+      await expect(promise).rejects.toThrow(new Error('any_error'))
     })
   })
 })
