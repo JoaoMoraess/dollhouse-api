@@ -8,6 +8,8 @@ import { Product } from '@/infra/repos/postgres/entities/Product'
 import { OrderProduct } from '@/infra/repos/postgres/entities/OrderProduct'
 import { EntityRepository } from '@mikro-orm/core'
 
+import { UUIdHandler } from '@/infra/gateways'
+
 describe('PgOrderRepository', () => {
   let sut: PgOrderRepository
   let connection: PgConnection
@@ -32,7 +34,7 @@ describe('PgOrderRepository', () => {
 
   beforeEach(() => {
     backup.restore()
-    sut = new PgOrderRepository()
+    sut = new PgOrderRepository(new UUIdHandler())
   })
 
   it('should extend PgRepository', async () => {

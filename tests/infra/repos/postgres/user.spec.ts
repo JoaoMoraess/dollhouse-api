@@ -7,6 +7,8 @@ import { EntityRepository } from '@mikro-orm/core'
 import { v4 } from 'uuid'
 import { PgUserRepository } from '@/infra/repos/postgres'
 
+import { UUIdHandler } from '@/infra/gateways'
+
 describe('PgUserRepository', () => {
   let sut: PgUserRepository
   let connection: PgConnection
@@ -31,7 +33,7 @@ describe('PgUserRepository', () => {
     email = 'any_email@mail.com'
     userId = v4()
     backup.restore()
-    sut = new PgUserRepository()
+    sut = new PgUserRepository(new UUIdHandler())
   })
 
   it('should extend PgRepository', async () => {
