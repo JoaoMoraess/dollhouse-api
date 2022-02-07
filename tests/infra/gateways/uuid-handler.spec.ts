@@ -17,4 +17,9 @@ describe('UUidHandler', () => {
     uuidHandler.generate()
     expect(v4).toHaveBeenCalled()
   })
+  it('should return the correct value', () => {
+    const uuidHandler = new UUIdHandler()
+    const id = uuidHandler.generate()
+    expect(id).toBe('any_uuid')
+  })
 })
