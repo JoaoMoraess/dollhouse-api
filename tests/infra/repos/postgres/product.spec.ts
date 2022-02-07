@@ -107,6 +107,7 @@ describe('PgProductRepository', () => {
         name: 'any_name',
         price: 2390,
         imageUrl: 'any_image_url',
+        description: 'any_description',
         stock: 12
       }
       await sut.save(entity)
@@ -116,8 +117,7 @@ describe('PgProductRepository', () => {
       expect(product!.name).toBe('any_name')
       expect(product!.price).toBe(2390)
       expect(product!.imageUrl).toBe('any_image_url')
-      // TODO Add Description field to product
-      // expect(product!.description).toBe('any_description')
+      expect(product!.description).toBe('any_description')
     })
   })
 })

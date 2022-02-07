@@ -14,6 +14,9 @@ export class Product {
   @Property()
   price!: number
 
+  @Property({ nullable: true, columnType: 'text' })
+  description?: string
+
   @Property({ columnType: 'text', fieldName: 'imageUrl' })
   imageUrl!: string
 }
