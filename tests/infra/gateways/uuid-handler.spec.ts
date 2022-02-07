@@ -18,12 +18,17 @@ describe('UUidHandler', () => {
   })
 
   it('should call v4', () => {
-    sut.generate({ key })
+    sut.generate(key)
     expect(v4).toHaveBeenCalled()
   })
 
   it('should return the correct value', () => {
-    const id = sut.generate({ key })
+    const id = sut.generate(key)
     expect(id).toBe(`${key}_any_uuid`)
+  })
+
+  it('should return the correct value without key', () => {
+    const id = sut.generate()
+    expect(id).toBe('any_uuid')
   })
 })
