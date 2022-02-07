@@ -1,9 +1,23 @@
-import { CountTotalProducts, LoadProductsByIds, LoadProductsByOffset } from '@/domain/contracts/repos'
+import { UUIDGenerator } from '@/domain/contracts/gateways'
+import { CountTotalProducts, LoadProductsByIds, LoadProductsByOffset, SaveProduct } from '@/domain/contracts/repos'
 import { Product } from '@/domain/entities'
 import { Repository } from '@/infra/repos/postgres/repository'
 
-export class PgProductRepository extends Repository implements LoadProductsByIds, LoadProductsByOffset, CountTotalProducts {
+export class PgProductRepository extends Repository implements LoadProductsByIds, LoadProductsByOffset, CountTotalProducts, SaveProduct {
   private readonly productRepository = this.getRepository<Product>('Product')
+
+  constructor (private readonly uuidGenerator: UUIDGenerator) { super() }
+
+  async save ({ description, imageUrl, name, price }: { name: string, price: number, description: string, imageUrl: string }): Promise<void> {
+    const newProduct = this.productRepository.create({
+      id: this.uuidGenerator.generate(),
+      imageUrl,
+      name,
+      price,
+      stock: 1
+    })
+    await this.productRepository.persistAndFlush(newProduct)
+  }
 
   async loadByIds (ids: string[]): Promise<Product[]> {
     const products = await this.productRepository.find({

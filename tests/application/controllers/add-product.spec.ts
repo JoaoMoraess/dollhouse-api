@@ -1,7 +1,7 @@
 import { Controller } from '@/application/controllers/controller'
 import { noContent } from '@/application/helpers'
 import { RequiredString, RequiredBuffer, AllowedMimeTypes, MaxFileSize, NumberLength, RequiredNumber } from '@/application/validation'
-import { AddProductController } from '@/application/controllers'
+import { SaveProductController } from '@/application/controllers'
 
 type HttpRequest = {
   name: string
@@ -10,13 +10,13 @@ type HttpRequest = {
   imageFile: { buffer: Buffer, mimeType: string }
 }
 
-describe('AddProductsController', () => {
-  let sut: AddProductController
+describe('SaveProductsController', () => {
+  let sut: SaveProductController
   let httpRequest: HttpRequest
-  let addProduct: jest.Mock
+  let SaveProduct: jest.Mock
 
   beforeAll(() => {
-    addProduct = jest.fn()
+    SaveProduct = jest.fn()
   })
 
   beforeEach(() => {
@@ -26,7 +26,7 @@ describe('AddProductsController', () => {
       stock: 5,
       imageFile: { buffer: Buffer.from(new ArrayBuffer(1 * 1024)), mimeType: 'image/jpg' }
     }
-    sut = new AddProductController(addProduct)
+    sut = new SaveProductController(SaveProduct)
   })
 
   it('should extend controller', async () => {
@@ -47,11 +47,11 @@ describe('AddProductsController', () => {
     ])
   })
 
-  it('should call addProduct with correct values', async () => {
+  it('should call SaveProduct with correct values', async () => {
     await sut.handle(httpRequest)
 
-    expect(addProduct).toHaveBeenCalledWith({ ...httpRequest })
-    expect(addProduct).toHaveBeenCalledTimes(1)
+    expect(SaveProduct).toHaveBeenCalledWith({ ...httpRequest })
+    expect(SaveProduct).toHaveBeenCalledTimes(1)
   })
   it('should return noContent on success', async () => {
     const httpResponse = await sut.handle(httpRequest)

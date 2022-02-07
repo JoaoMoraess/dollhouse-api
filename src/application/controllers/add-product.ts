@@ -10,16 +10,16 @@ type HttpRequest = {
   imageFile: { buffer: Buffer, mimeType: string }
 }
 
-type AddProduct = (input: HttpRequest) => Promise<void>
+type SaveProduct = (input: HttpRequest) => Promise<void>
 
-export class AddProductController extends Controller {
+export class SaveProductController extends Controller {
   constructor (
-    private readonly addProduct: AddProduct
+    private readonly SaveProduct: SaveProduct
   ) { super() }
 
   override async perform (httpRequest: HttpRequest): Promise<HttpResponse<any>> {
     const { imageFile, name, price, stock } = httpRequest
-    await this.addProduct({ imageFile, name, price, stock })
+    await this.SaveProduct({ imageFile, name, price, stock })
     return noContent()
   }
 

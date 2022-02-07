@@ -1,14 +1,14 @@
 import { UUIdHandler } from '@/infra/gateways'
 import { mock, MockProxy } from 'jest-mock-extended'
-import { CreateProduct, setCreateProduct } from '@/domain/use-cases'
+import { AddProduct, setAddProduct } from '@/domain/use-cases'
 import { DeleteFile, UploadFile } from '@/domain/contracts/gateways'
-import { AddProduct } from '@/domain/contracts/repos'
+import { SaveProduct } from '@/domain/contracts/repos'
 
-describe('CreateProduct', () => {
-  let sut: CreateProduct
+describe('AddProduct', () => {
+  let sut: AddProduct
   let uuidHandler: MockProxy<UUIdHandler>
   let fileStorage: MockProxy<UploadFile & DeleteFile>
-  let productRepo: MockProxy<AddProduct>
+  let productRepo: MockProxy<SaveProduct>
   let params: {name: string, price: number, description: string, imageFile: Buffer}
 
   beforeAll(() => {
@@ -17,8 +17,8 @@ describe('CreateProduct', () => {
     fileStorage = mock<UploadFile & DeleteFile>()
     fileStorage.upload.mockResolvedValue('any_product_url')
     fileStorage.delete.mockResolvedValue()
-    productRepo = mock<AddProduct>()
-    productRepo.add.mockResolvedValue()
+    productRepo = mock<SaveProduct>()
+    productRepo.save.mockResolvedValue()
     params = {
       name: 'any_product_name',
       price: 10,
@@ -28,7 +28,7 @@ describe('CreateProduct', () => {
   })
 
   beforeEach(() => {
-    sut = setCreateProduct(uuidHandler, fileStorage, productRepo)
+    sut = setAddProduct(uuidHandler, fileStorage, productRepo)
   })
 
   it('should call uuidHandler with correct key', async () => {
@@ -47,7 +47,7 @@ describe('CreateProduct', () => {
   it('should call productRepo.add with correct input', async () => {
     await sut(params)
 
-    expect(productRepo.add).toHaveBeenCalledWith({
+    expect(productRepo.save).toHaveBeenCalledWith({
       description: params.description,
       imageUrl: 'any_product_url',
       name: params.name,
@@ -55,7 +55,7 @@ describe('CreateProduct', () => {
     })
   })
   it('should call fileStorage.delete and throws if productRepo.save throw', async () => {
-    productRepo.add.mockRejectedValueOnce(new Error('any_error'))
+    productRepo.save.mockRejectedValueOnce(new Error('any_error'))
 
     const promise = sut(params)
 

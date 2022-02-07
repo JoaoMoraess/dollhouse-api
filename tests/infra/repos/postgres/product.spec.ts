@@ -5,6 +5,7 @@ import { Product } from '@/infra/repos/postgres/entities/Product'
 import { PgConnection } from '@/infra/repos/postgres/helpers/connection'
 import { Repository } from '@/infra/repos/postgres/repository'
 import { EntityRepository } from '@mikro-orm/core'
+import { UUIdHandler } from '@/infra/gateways'
 
 describe('PgProductRepository', () => {
   let sut: PgProductRepository
@@ -26,7 +27,7 @@ describe('PgProductRepository', () => {
 
   beforeEach(() => {
     backup.restore()
-    sut = new PgProductRepository()
+    sut = new PgProductRepository(new UUIdHandler())
   })
 
   it('should extend PgRepository', async () => {
@@ -98,6 +99,25 @@ describe('PgProductRepository', () => {
 
       const productsCount = await sut.countTotal()
       expect(productsCount).toEqual(2)
+    })
+  })
+  describe('save', () => {
+    it('should save product', async () => {
+      const entity = {
+        name: 'any_name',
+        price: 2390,
+        imageUrl: 'any_image_url',
+        description: 'any_description'
+      }
+      await sut.save(entity)
+
+      const product = await pgProductRepo.findOne({ name: 'any_name' })
+      expect(product).toBeTruthy()
+      expect(product!.name).toBe('any_name')
+      expect(product!.price).toBe(2390)
+      expect(product!.imageUrl).toBe('any_image_url')
+      // TODO Add Description field to product
+      // expect(product!.description).toBe('any_description')
     })
   })
 })
