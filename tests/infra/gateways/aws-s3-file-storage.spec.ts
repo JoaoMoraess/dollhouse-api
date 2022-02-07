@@ -67,5 +67,18 @@ describe('AWSS3FileStorage', () => {
 
       expect(imageUrl).toEqual(`https://${bucketName}.s3.amazonaws.com/${fileName}`)
     })
+
+    it('should return encoded imageUrl', async () => {
+      const imageUrl = await sut.upload({ file, fileName: 'any file name' })
+
+      expect(imageUrl).toBe(`https://${bucketName}.s3.amazonaws.com/any%20file%20name`)
+    })
+
+    it('should rethrow if putObject throws', async () => {
+      putObjectPromiseSpy.mockRejectedValueOnce(new Error('any_error'))
+      const promise = sut.upload({ file, fileName })
+
+      await expect(promise).rejects.toThrow('any_error')
+    })
   })
 })

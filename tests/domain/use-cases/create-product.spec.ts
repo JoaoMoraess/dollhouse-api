@@ -20,7 +20,7 @@ describe('CreateProduct', () => {
     productRepo = mock<AddProduct>()
     productRepo.add.mockResolvedValue()
     params = {
-      name: 'any product name',
+      name: 'any_product_name',
       price: 10,
       description: 'any_product_description',
       imageFile: Buffer.from(new ArrayBuffer(10))
