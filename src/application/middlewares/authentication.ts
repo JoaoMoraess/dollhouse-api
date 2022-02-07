@@ -16,7 +16,9 @@ export class AuthenticationMiddleware implements Middleware {
     if (!this.validate({ authorization })) return forbidden()
     try {
       const { key, userRole } = await this.authorize({ token: authorization })
-      if (userRole !== 'admin' && userRole !== this.role) return forbidden()
+      if (userRole !== 'admin') {
+        if (userRole !== this.role) return forbidden()
+      }
 
       return ok({ userId: key })
     } catch {

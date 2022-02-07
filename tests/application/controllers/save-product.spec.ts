@@ -8,16 +8,16 @@ type HttpRequest = {
   price: number
   description?: string
   stock: number
-  imageFile: { buffer: Buffer, mimeType: string }
+  file: { buffer: Buffer, mimeType: string }
 }
 
 describe('SaveProductsController', () => {
   let sut: SaveProductController
   let httpRequest: HttpRequest
-  let SaveProduct: jest.Mock
+  let addProduct: jest.Mock
 
   beforeAll(() => {
-    SaveProduct = jest.fn()
+    addProduct = jest.fn()
   })
 
   beforeEach(() => {
@@ -26,9 +26,9 @@ describe('SaveProductsController', () => {
       price: 1290,
       stock: 5,
       description: 'any_description',
-      imageFile: { buffer: Buffer.from(new ArrayBuffer(1 * 1024)), mimeType: 'image/jpg' }
+      file: { buffer: Buffer.from(new ArrayBuffer(1 * 1024)), mimeType: 'image/jpg' }
     }
-    sut = new SaveProductController(SaveProduct)
+    sut = new SaveProductController(addProduct)
   })
 
   it('should extend controller', async () => {
@@ -43,17 +43,17 @@ describe('SaveProductsController', () => {
       new NumberLength(httpRequest.price, 'min', 0, 'price'),
       new RequiredNumber(httpRequest.stock, 'stock'),
       new NumberLength(httpRequest.stock, 'min', 0, 'stock'),
-      new RequiredBuffer(httpRequest.imageFile.buffer, 'imageFile'),
-      new MaxFileSize(1, httpRequest.imageFile.buffer),
+      new RequiredBuffer(httpRequest.file.buffer, 'file'),
+      new MaxFileSize(1, httpRequest.file.buffer),
       new AllowedMimeTypes(['jpg', 'png'], 'image/jpg')
     ])
   })
 
-  it('should call SaveProduct with correct values', async () => {
+  it('should call addProduct with correct values', async () => {
     await sut.handle(httpRequest)
 
-    expect(SaveProduct).toHaveBeenCalledWith({ name: httpRequest.name, price: httpRequest.price, stock: httpRequest.stock, description: httpRequest.description, imageFile: httpRequest.imageFile.buffer })
-    expect(SaveProduct).toHaveBeenCalledTimes(1)
+    expect(addProduct).toHaveBeenCalledWith({ name: httpRequest.name, price: httpRequest.price, stock: httpRequest.stock, description: httpRequest.description, imageFile: httpRequest.file.buffer })
+    expect(addProduct).toHaveBeenCalledTimes(1)
   })
   it('should return noContent on success', async () => {
     const httpResponse = await sut.handle(httpRequest)
