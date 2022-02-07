@@ -1,10 +1,10 @@
-import { UploadFile } from '@/domain/contracts/gateways'
+import { DeleteFile, UploadFile } from '@/domain/contracts/gateways'
 import { config, S3 } from 'aws-sdk'
 import { mocked } from 'ts-jest/utils'
 
 jest.mock('aws-sdk')
 
-class AWSS3FileStorage implements UploadFile {
+class AWSS3FileStorage implements UploadFile, DeleteFile {
   constructor (accessKeyId: string, secretAccessKey: string, private readonly bucketName: string) {
     config.update({ credentials: { accessKeyId, secretAccessKey } })
   }
@@ -18,6 +18,13 @@ class AWSS3FileStorage implements UploadFile {
     }).promise()
     return `https://${this.bucketName}.s3.amazonaws.com/${encodeURIComponent(fileName)}`
   }
+
+  async delete ({ fileName }: { fileName: string }): Promise<void> {
+    await new S3().deleteObject({
+      Bucket: this.bucketName,
+      Key: fileName
+    }).promise()
+  }
 }
 
 describe('AWSS3FileStorage', () => {
@@ -25,11 +32,13 @@ describe('AWSS3FileStorage', () => {
   let accessKeyId: string
   let secretAccessKey: string
   let bucketName: string
+  let fileName: string
 
   beforeAll(() => {
     accessKeyId = 'any_access_key_id'
     secretAccessKey = 'any_secret_access_key'
     bucketName = 'any_bucket_name'
+    fileName = 'any_file_name'
   })
 
   beforeEach(() => {
@@ -44,13 +53,11 @@ describe('AWSS3FileStorage', () => {
   })
   describe('upload()', () => {
     let file: Buffer
-    let fileName: string
     let putObjectPromiseSpy: jest.Mock
     let putObjectSpy: jest.Mock
 
     beforeEach(() => {
       file = Buffer.from('any_file')
-      fileName = 'any_file_name'
       putObjectPromiseSpy = jest.fn()
       putObjectSpy = jest.fn().mockImplementation(() => ({ promise: putObjectPromiseSpy }))
       mocked(S3).mockImplementation(jest.fn().mockImplementation(() => ({ putObject: putObjectSpy })))
@@ -79,6 +86,26 @@ describe('AWSS3FileStorage', () => {
       const promise = sut.upload({ file, fileName })
 
       await expect(promise).rejects.toThrow('any_error')
+    })
+  })
+  describe('delete()', () => {
+    let deleteObjectPromiseSpy: jest.Mock
+    let deleteObjectSpy: jest.Mock
+
+    beforeAll(() => {
+      deleteObjectPromiseSpy = jest.fn()
+      deleteObjectSpy = jest.fn().mockImplementation(() => ({ promise: deleteObjectPromiseSpy }))
+      mocked(S3).mockImplementation(jest.fn().mockImplementation(() => ({ deleteObject: deleteObjectSpy })))
+    })
+
+    it('should call deleteObject with correct input', async () => {
+      await sut.delete({ fileName })
+      expect(deleteObjectSpy).toHaveBeenCalledWith({
+        Bucket: bucketName,
+        Key: fileName
+      })
+      expect(deleteObjectSpy).toHaveBeenCalledTimes(1)
+      expect(deleteObjectPromiseSpy).toHaveBeenCalledTimes(1)
     })
   })
 })
