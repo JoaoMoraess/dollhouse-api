@@ -1,26 +1,9 @@
 import { v4 } from 'uuid'
+import { UUIdHandler } from '@/infra/gateways'
 
 jest.mock('uuid', () => ({
   v4: jest.fn(() => 'any_uuid')
 }))
-
-interface UUIDGenerator {
-  generate: (input: UUIDGenerator.Input) => UUIDGenerator.Output
-}
-
-namespace UUIDGenerator {
-  export type Input = {
-    key: string
-  }
-  export type Output = string
-}
-
-class UUIdHandler implements UUIDGenerator {
-  generate ({ key }: UUIDGenerator.Input): UUIDGenerator.Output {
-    const uuid = v4()
-    return `${key}_${uuid}`
-  }
-}
 
 describe('UUidHandler', () => {
   let key: string
