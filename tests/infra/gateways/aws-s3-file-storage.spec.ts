@@ -1,5 +1,6 @@
 import { UploadFile } from '@/domain/contracts/gateways'
-import { config } from 'aws-sdk'
+import { config, S3 } from 'aws-sdk'
+import { mocked } from 'ts-jest/utils'
 
 jest.mock('aws-sdk')
 
@@ -8,8 +9,14 @@ class AWSS3FileStorage implements UploadFile {
     config.update({ credentials: { accessKeyId, secretAccessKey } })
   }
 
-  async upload (input: { file: Buffer, fileName: string }): Promise<string> {
-    return ''
+  async upload ({ file, fileName }: { file: Buffer, fileName: string }): Promise<string> {
+    await new S3().putObject({
+      Bucket: this.bucketName,
+      Key: fileName,
+      Body: file,
+      ACL: 'public-read'
+    }).promise()
+    return `https://${this.bucketName}.s3.amazonaws.com/${encodeURIComponent(fileName)}`
   }
 }
 
@@ -36,6 +43,24 @@ describe('AWSS3FileStorage', () => {
     expect(config.update).toHaveBeenCalledTimes(1)
   })
   describe('upload()', () => {
+    let file: Buffer
+    let fileName: string
+    let putObjectPromiseSpy: jest.Mock
+    let putObjectSpy: jest.Mock
 
+    beforeEach(() => {
+      file = Buffer.from('any_file')
+      fileName = 'any_file_name'
+      putObjectPromiseSpy = jest.fn()
+      putObjectSpy = jest.fn().mockImplementation(() => ({ promise: putObjectPromiseSpy }))
+      mocked(S3).mockImplementation(jest.fn().mockImplementation(() => ({ putObject: putObjectSpy })))
+    })
+
+    it('should call putObject with correct input', async () => {
+      await sut.upload({ file, fileName })
+
+      expect(putObjectSpy).toHaveBeenCalledTimes(1)
+      expect(putObjectPromiseSpy).toHaveBeenCalledTimes(1)
+    })
   })
 })
