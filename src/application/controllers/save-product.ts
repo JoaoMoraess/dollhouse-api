@@ -1,25 +1,25 @@
 import { HttpResponse, noContent } from '@/application/helpers'
 import { Validator } from '@/application/validation'
 import { ValidationBuilder } from '@/application/validation/builder'
+import { AddProduct } from '@/domain/use-cases'
 import { Controller } from '.'
 
 type HttpRequest = {
   name: string
   price: number
   stock: number
+  description?: string
   imageFile: { buffer: Buffer, mimeType: string }
 }
 
-type SaveProduct = (input: HttpRequest) => Promise<void>
-
 export class SaveProductController extends Controller {
   constructor (
-    private readonly SaveProduct: SaveProduct
+    private readonly addProduct: AddProduct
   ) { super() }
 
-  override async perform (httpRequest: HttpRequest): Promise<HttpResponse<any>> {
-    const { imageFile, name, price, stock } = httpRequest
-    await this.SaveProduct({ imageFile, name, price, stock })
+  override async perform (httpRequest: HttpRequest): Promise<HttpResponse> {
+    const { imageFile: { buffer }, name, price, stock, description } = httpRequest
+    await this.addProduct({ imageFile: buffer, name, price, stock, description })
     return noContent()
   }
 

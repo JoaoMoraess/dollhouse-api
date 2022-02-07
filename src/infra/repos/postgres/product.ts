@@ -8,13 +8,13 @@ export class PgProductRepository extends Repository implements LoadProductsByIds
 
   constructor (private readonly uuidGenerator: UUIDGenerator) { super() }
 
-  async save ({ description, imageUrl, name, price }: { name: string, price: number, description: string, imageUrl: string }): Promise<void> {
+  async save ({ description, imageUrl, name, price, stock }: { name: string, price: number, description?: string, stock: number, imageUrl: string }): Promise<void> {
     const newProduct = this.productRepository.create({
       id: this.uuidGenerator.generate(),
       imageUrl,
       name,
       price,
-      stock: 1
+      stock
     })
     await this.productRepository.persistAndFlush(newProduct)
   }

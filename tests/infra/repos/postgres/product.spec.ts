@@ -107,7 +107,7 @@ describe('PgProductRepository', () => {
         name: 'any_name',
         price: 2390,
         imageUrl: 'any_image_url',
-        description: 'any_description'
+        stock: 12
       }
       await sut.save(entity)
 

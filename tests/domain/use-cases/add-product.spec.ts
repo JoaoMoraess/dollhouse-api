@@ -9,7 +9,7 @@ describe('AddProduct', () => {
   let uuidHandler: MockProxy<UUIdHandler>
   let fileStorage: MockProxy<UploadFile & DeleteFile>
   let productRepo: MockProxy<SaveProduct>
-  let params: {name: string, price: number, description: string, imageFile: Buffer}
+  let params: {name: string, price: number, stock: number, description: string, imageFile: Buffer}
 
   beforeAll(() => {
     uuidHandler = mock<UUIdHandler>()
@@ -22,6 +22,7 @@ describe('AddProduct', () => {
     params = {
       name: 'any_product_name',
       price: 10,
+      stock: 10,
       description: 'any_product_description',
       imageFile: Buffer.from(new ArrayBuffer(10))
     }
@@ -51,6 +52,7 @@ describe('AddProduct', () => {
       description: params.description,
       imageUrl: 'any_product_url',
       name: params.name,
+      stock: params.stock,
       price: params.price
     })
   })

@@ -6,6 +6,7 @@ import { SaveProductController } from '@/application/controllers'
 type HttpRequest = {
   name: string
   price: number
+  description?: string
   stock: number
   imageFile: { buffer: Buffer, mimeType: string }
 }
@@ -24,6 +25,7 @@ describe('SaveProductsController', () => {
       name: 'pencil',
       price: 1290,
       stock: 5,
+      description: 'any_description',
       imageFile: { buffer: Buffer.from(new ArrayBuffer(1 * 1024)), mimeType: 'image/jpg' }
     }
     sut = new SaveProductController(SaveProduct)
@@ -50,7 +52,7 @@ describe('SaveProductsController', () => {
   it('should call SaveProduct with correct values', async () => {
     await sut.handle(httpRequest)
 
-    expect(SaveProduct).toHaveBeenCalledWith({ ...httpRequest })
+    expect(SaveProduct).toHaveBeenCalledWith({ name: httpRequest.name, price: httpRequest.price, stock: httpRequest.stock, description: httpRequest.description, imageFile: httpRequest.imageFile.buffer })
     expect(SaveProduct).toHaveBeenCalledTimes(1)
   })
   it('should return noContent on success', async () => {
