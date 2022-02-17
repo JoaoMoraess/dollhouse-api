@@ -9,7 +9,7 @@ describe('AddProduct', () => {
   let uuidHandler: MockProxy<UUIdHandler>
   let fileStorage: MockProxy<UploadFile & DeleteFile>
   let productRepo: MockProxy<SaveProduct>
-  let params: {name: string, price: number, stock: number, description: string, imageFile: Buffer}
+  let params: {name: string, price: number, stock: number, description: string, imageFile: { buffer: Buffer, mimeType: string }}
 
   beforeAll(() => {
     uuidHandler = mock<UUIdHandler>()
@@ -24,7 +24,7 @@ describe('AddProduct', () => {
       price: 10,
       stock: 10,
       description: 'any_product_description',
-      imageFile: Buffer.from(new ArrayBuffer(10))
+      imageFile: { buffer: Buffer.from(new ArrayBuffer(10)), mimeType: 'image/any_mimetype' }
     }
   })
 
@@ -41,8 +41,8 @@ describe('AddProduct', () => {
     await sut(params)
 
     expect(fileStorage.upload).toHaveBeenCalledWith({
-      file: params.imageFile,
-      fileName: 'any_product_name_uuid'
+      file: params.imageFile.buffer,
+      fileName: 'any_product_name_uuid.any_mimetype'
     })
   })
   it('should call productRepo.add with correct input', async () => {

@@ -52,7 +52,7 @@ describe('SaveProductsController', () => {
   it('should call addProduct with correct values', async () => {
     await sut.handle(httpRequest)
 
-    expect(addProduct).toHaveBeenCalledWith({ name: httpRequest.name, price: httpRequest.price, stock: httpRequest.stock, description: httpRequest.description, imageFile: httpRequest.file.buffer })
+    expect(addProduct).toHaveBeenCalledWith({ name: httpRequest.name, price: httpRequest.price, stock: httpRequest.stock, description: httpRequest.description, imageFile: httpRequest.file })
     expect(addProduct).toHaveBeenCalledTimes(1)
   })
   it('should return noContent on success', async () => {

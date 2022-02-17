@@ -18,8 +18,8 @@ export class SaveProductController extends Controller {
   ) { super() }
 
   override async perform (httpRequest: HttpRequest): Promise<HttpResponse> {
-    const { file: { buffer }, name, price, stock, description } = httpRequest
-    await this.addProduct({ imageFile: buffer, name, price, stock, description })
+    const { file, name, price, stock, description } = httpRequest
+    await this.addProduct({ imageFile: file, name, price, stock, description })
     return noContent()
   }
 

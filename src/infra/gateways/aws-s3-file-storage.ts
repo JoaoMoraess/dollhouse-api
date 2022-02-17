@@ -10,7 +10,7 @@ export class AWSS3FileStorage implements UploadFile, DeleteFile {
     await new S3().putObject({
       Bucket: this.bucketName,
       Key: fileName,
-      Body: file,
+      Body: Buffer.from(file),
       ACL: 'public-read'
     }).promise()
     return `https://${this.bucketName}.s3.amazonaws.com/${encodeURIComponent(fileName)}`
