@@ -27,8 +27,8 @@
     "email": "joaomorais.cirne@gmail.com"
   },
   "scripts": {
-    "start": "node -r dotenv/config dist/main",
-    "dev": "ts-node-dev --respawn --transpile-only --clear -r dotenv/config --inspect=0.0.0.0:9229 src/main",
+    "start": "yarn up && node -r dotenv/config dist/main",
+    "dev": "yarn up && ts-node-dev --respawn --transpile-only --clear -r dotenv/config --inspect=0.0.0.0:9229 src/main",
     "clean": "rimraf dist",
     "build": "yarn clean && tsc -p tsconfig-build.json",
     "up": "yarn build && docker-compose up -d",
@@ -46,6 +46,7 @@
     "test:pagseguro-api": "yarn test:integration -- ./tests/external/pagseguro-api.test.ts",
     "test:correios-api": "yarn test:integration -- ./tests/external/correios-api.test.ts",
     "test:coveralls": "yarnest:coverage && coveralls < coverage/lcov.info"
+
   },
   "mikro-orm": {
     "useTsNode": true,
@@ -102,6 +103,6 @@
     "xml-js": "^1.6.11"
   },
   "engines": {
-    "node": "16.x"
+    "node": "16.0.0"
   }
 }
